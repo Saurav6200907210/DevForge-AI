@@ -1,0 +1,13 @@
+{
+  "name": "devforge-ai-root",
+  "version": "1.0.0",
+  "description": "DevForge AI - Developer Career Intelligence Platform",
+  "main": "start-all.js",
+  "scripts": {
+    "install-all": "npm install && cd frontend && npm install --legacy-peer-deps && cd ../backend && npm install",
+    "dev": "node start-all.js"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

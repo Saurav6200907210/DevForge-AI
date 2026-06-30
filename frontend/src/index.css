@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #FAFAF8;
+    color: #2B2B2B;
+    @apply antialiased font-sans selection:bg-[#1F6F5F]/10 selection:text-[#1F6F5F] overflow-x-hidden;
+  }
+}
+
+/* Custom premium visual utility classes */
+.glass-panel {
+  background: rgba(250, 250, 248, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(31, 58, 95, 0.06);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(31, 58, 95, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 20px;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(31, 111, 95, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -15px rgba(31, 111, 95, 0.08);
+}
+
+/* Luxury Glowing Border */
+.glow-border {
+  position: relative;
+  z-index: 1;
+}
+
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  background: linear-gradient(135deg, #1F6F5F, #C8A96A, #1F3A5F);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.glow-border:hover::after {
+  opacity: 0.8;
+}
+
+/* Custom premium gradient text */
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #1F6F5F 30%, #1F3A5F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #C8A96A 30%, #1F3A5F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Luxury Grid Pattern */
+.bg-grid-pattern {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(31, 58, 95, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(31, 58, 95, 0.02) 1px, transparent 1px);
+}
+
+/* Beautiful custom thin webkit scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAFAF8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E5E5E0;
+  border-radius: 99px;
+  border: 2px solid #FAFAF8;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C8A96A;
+}
+
+/* Custom Animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-reverse {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(15px) rotate(-5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float-slow {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-reverse 12s ease-in-out infinite;
+}
+
+/* Custom Molecule Animation Background Styles */
+.molecule-node {
+  transition: all 0.3s ease;
+}
+.molecule-node:hover {
+  filter: drop-shadow(0 0 8px #C8A96A);
+}
+
