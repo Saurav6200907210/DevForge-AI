@@ -14,7 +14,7 @@ export function DoughnutDial({ percentage, label, color = '#1F6F5F', size = 120 
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-2 p-4 rounded-2xl bg-white/70 border border-[#1F3A5F]/5 shadow-sm w-fit">
+    <div className="flex flex-col items-center justify-center space-y-2 p-4 rounded-2xl bg-white border border-[#1F3A5F]/5 shadow-sm w-fit">
       <div className="relative" style={{ width: size, height: size }}>
         <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
           {/* Background track circle */}
@@ -23,7 +23,7 @@ export function DoughnutDial({ percentage, label, color = '#1F6F5F', size = 120 
             cy="50" 
             r={radius} 
             fill="transparent" 
-            stroke="rgba(31, 58, 95, 0.04)" 
+            stroke="rgba(31, 58, 95, 0.03)" 
             strokeWidth={strokeWidth} 
           />
           {/* Foreground active progress circle */}
@@ -46,7 +46,7 @@ export function DoughnutDial({ percentage, label, color = '#1F6F5F', size = 120 
         {/* Metric score inside */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-extrabold text-[#1F3A5F] leading-none">{percentage}%</span>
-          <span className="text-[9px] text-[#777777] font-bold uppercase tracking-wider mt-1">{label}</span>
+          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1.5">{label}</span>
         </div>
       </div>
     </div>
@@ -62,16 +62,16 @@ export function BarChart({ data, height = 180 }: BarChartProps) {
   const maxValue = Math.max(...data.map(d => d.value), 1);
 
   return (
-    <div className="space-y-4 w-full p-6 rounded-2xl bg-white/70 border border-[#1F3A5F]/5 shadow-sm">
-      <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest text-left">Formulation Spectrum</h4>
+    <div className="space-y-4 w-full p-6 rounded-2xl bg-white border border-[#1F3A5F]/5 shadow-sm text-left">
+      <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest">Repositories Per Language</h4>
       <div className="flex items-end justify-between w-full h-[180px] pt-4 px-2 relative border-b border-[#1F3A5F]/10">
         {data.map((item, index) => {
           const barHeight = (item.value / maxValue) * 120; // Max height capped to fit
           return (
             <div key={index} className="flex flex-col items-center group flex-1 max-w-[60px] mx-1 relative">
-              {/* Hover Tooltip showing percentage */}
+              {/* Hover Tooltip showing count */}
               <span className="absolute top-[-30px] opacity-0 group-hover:opacity-100 bg-[#1F3A5F] text-[9px] font-bold text-white px-2 py-0.5 rounded-md pointer-events-none transition-all z-20 shadow-sm">
-                {item.value} ingredients
+                {item.value} Repos
               </span>
               
               {/* Dynamic Bar with gradient */}
@@ -81,7 +81,7 @@ export function BarChart({ data, height = 180 }: BarChartProps) {
               ></div>
 
               {/* Bottom label */}
-              <span className="text-[10px] text-[#555555] font-semibold mt-2 truncate w-full text-center group-hover:text-[#1F6F5F] transition-colors">
+              <span className="text-[10px] text-slate-500 font-semibold mt-2 truncate w-full text-center group-hover:text-[#1F6F5F] transition-colors">
                 {item.label}
               </span>
             </div>
@@ -93,8 +93,8 @@ export function BarChart({ data, height = 180 }: BarChartProps) {
 }
 
 export function ContributionGrid() {
-  // Mock arrays simulating Routine tracking consistency calendar
-  const cols = 28; // Weeks
+  // Mock arrays simulating GitHub style contribution board grid
+  const cols = 24; // Weeks
   const rows = 7;  // Days of week
   
   const intensityLevels = [
@@ -110,7 +110,6 @@ export function ContributionGrid() {
   for (let c = 0; c < cols; c++) {
     const colCells = [];
     for (let r = 0; r < rows; r++) {
-      // Formulate a pseudo-random heatmap, favoring clustering
       const baseChance = Math.sin(c / 2) + Math.cos(r / 2) + 1.2;
       const intensity = Math.max(0, Math.min(4, Math.floor(Math.random() * baseChance * 1.8)));
       colCells.push(intensity);
@@ -119,17 +118,17 @@ export function ContributionGrid() {
   }
 
   return (
-    <div className="space-y-4 w-full p-6 rounded-2xl bg-white/70 border border-[#1F3A5F]/5 shadow-sm overflow-x-auto">
+    <div className="space-y-4 w-full p-6 rounded-2xl bg-white border border-[#1F3A5F]/5 shadow-sm overflow-x-auto text-left">
       <div className="flex items-center justify-between border-b border-[#1F3A5F]/5 pb-3">
-        <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest text-left">Dermal Consistency Tracker</h4>
-        <div className="flex items-center space-x-2 text-[10px] text-[#777777] font-semibold">
-          <span>Missed</span>
+        <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest">365 Day Contribution Heatmap</h4>
+        <div className="flex items-center space-x-2 text-[10px] text-slate-400 font-semibold">
+          <span>Less</span>
           <div className="h-2.5 w-2.5 rounded bg-slate-100 border border-[#1F3A5F]/5"></div>
           <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/10 border border-[#1F6F5F]/20"></div>
           <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/30 border border-[#1F6F5F]/30"></div>
           <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/60 border border-[#1F6F5F]/40"></div>
           <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F] border border-[#1F6F5F]/50"></div>
-          <span>Consistent</span>
+          <span>More</span>
         </div>
       </div>
       
@@ -140,11 +139,104 @@ export function ContributionGrid() {
               <div 
                 key={rIndex}
                 className={`h-2.5 w-2.5 rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${intensityLevels[level]}`}
-                title={`Routine consistency: Level ${level}`}
+                title={`Contributions: Level ${level}`}
               ></div>
             ))}
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// Language Treemap Visualizer
+interface LanguageTreemapProps {
+  data: { label: string; value: number }[];
+}
+
+export function LanguageTreemap({ data }: LanguageTreemapProps) {
+  const total = data.reduce((acc, curr) => acc + curr.value, 0);
+  const sorted = [...data].sort((a, b) => b.value - a.value);
+
+  const colors = [
+    'bg-[#1F6F5F] text-white',
+    'bg-[#1F3A5F] text-white',
+    'bg-[#C8A96A] text-white',
+    'bg-[#2B2B2B] text-white',
+    'bg-[#E5E5E0] text-[#2B2B2B]'
+  ];
+
+  return (
+    <div className="space-y-4 w-full p-6 rounded-2xl bg-white border border-[#1F3A5F]/5 shadow-sm text-left">
+      <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest">Language Treemap</h4>
+      <div className="w-full h-40 flex rounded-xl overflow-hidden shadow-inner border border-slate-100">
+        {sorted.map((item, index) => {
+          const pct = total > 0 ? (item.value / total) * 100 : 0;
+          if (pct < 4) return null; // Hide tiny blocks
+          return (
+            <div 
+              key={index} 
+              style={{ width: `${pct}%` }}
+              className={`h-full flex flex-col justify-between p-3 border-r border-[#FAFAF8] last:border-0 transition-all hover:opacity-90 cursor-pointer ${
+                colors[index % colors.length]
+              }`}
+            >
+              <span className="font-extrabold text-[10px] uppercase truncate">{item.label}</span>
+              <span className="text-xs font-black">{Math.round(pct)}%</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Commit Time Distribution Chart
+interface CommitTimeChartProps {
+  morning: number;
+  afternoon: number;
+  night: number;
+}
+
+export function CommitTimeChart({ morning, afternoon, night }: CommitTimeChartProps) {
+  const total = morning + afternoon + night;
+  const mPct = total > 0 ? Math.round((morning / total) * 100) : 33;
+  const aPct = total > 0 ? Math.round((afternoon / total) * 100) : 33;
+  const nPct = total > 0 ? 100 - mPct - aPct : 34;
+
+  return (
+    <div className="space-y-4 w-full p-6 rounded-2xl bg-white border border-[#1F3A5F]/5 shadow-sm text-left">
+      <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest">Commit Time Distribution</h4>
+      
+      <div className="space-y-4">
+        {/* Horizontal stacked bar */}
+        <div className="w-full h-8 rounded-xl overflow-hidden flex shadow-inner border border-slate-100">
+          <div style={{ width: `${mPct}%` }} className="h-full bg-[#C8A96A] transition-all flex items-center justify-center text-[10px] font-bold text-white" title="Morning">
+            {mPct}%
+          </div>
+          <div style={{ width: `${aPct}%` }} className="h-full bg-[#1F6F5F] transition-all flex items-center justify-center text-[10px] font-bold text-white" title="Afternoon">
+            {aPct}%
+          </div>
+          <div style={{ width: `${nPct}%` }} className="h-full bg-[#1F3A5F] transition-all flex items-center justify-center text-[10px] font-bold text-white" title="Night">
+            {nPct}%
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="grid grid-cols-3 gap-2 pt-2 text-[10px] font-bold text-[#2B2B2B]">
+          <div className="flex items-center space-x-1.5">
+            <div className="h-3 w-3 rounded bg-[#C8A96A]"></div>
+            <span>Morning (6am-12pm)</span>
+          </div>
+          <div className="flex items-center space-x-1.5 border-l border-slate-100 pl-2">
+            <div className="h-3 w-3 rounded bg-[#1F6F5F]"></div>
+            <span>Afternoon (12pm-6pm)</span>
+          </div>
+          <div className="flex items-center space-x-1.5 border-l border-slate-100 pl-2">
+            <div className="h-3 w-3 rounded bg-[#1F3A5F]"></div>
+            <span>Night (6pm-6am)</span>
+          </div>
+        </div>
       </div>
     </div>
   );

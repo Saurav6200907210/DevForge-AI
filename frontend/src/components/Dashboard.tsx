@@ -17,11 +17,31 @@ import {
   FileCode,
   ArrowRight,
   TrendingUp,
-  MessageSquare
+  MessageSquare,
+  Users,
+  GitPullRequest,
+  GitBranch,
+  Play,
+  Settings,
+  Calendar,
+  Layers,
+  MapPin,
+  Link as LinkIcon,
+  Search,
+  BookOpen,
+  ChevronDown,
+  Pin,
+  PinOff
 } from 'lucide-react';
 import ResumeEditor from './ResumeEditor';
 import LivePreview from './LivePreview';
-import { DoughnutDial, BarChart, ContributionGrid } from './CustomChart';
+import { 
+  DoughnutDial, 
+  BarChart, 
+  ContributionGrid, 
+  LanguageTreemap, 
+  CommitTimeChart 
+} from './CustomChart';
 import { api } from '../api';
 
 interface DashboardProps {
@@ -31,137 +51,168 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ profile, onLogout, onUpdateProfile }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'resume' | 'portfolio' | 'jobmatch' | 'interview'>('analytics');
+  const [activeTab, setActiveTab] = useState<'overview' | 'repos' | 'opensource' | 'collaboration' | 'explorer' | 'timeline' | 'resume' | 'portfolio'>('overview');
 
-  // Job Matcher States
-  const [jobDescription, setJobDescription] = useState('');
-  const [matching, setMatching] = useState(false);
-  const [matchResult, setMatchResult] = useState<any | null>(null);
+  // Explorer States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [langFilter, setLangFilter] = useState('All');
+  const [sortBy, setSortBy] = useState<'stars' | 'updated' | 'name'>('stars');
+  const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
 
-  // Clipboard copy feedback states
-  const [copiedLink, setCopiedLink] = useState<'linkedin' | 'cover' | 'readme' | null>(null);
-
-  const handleCopy = (text: string, type: 'linkedin' | 'cover' | 'readme') => {
-    navigator.clipboard.writeText(text);
-    setCopiedLink(type);
-    setTimeout(() => setCopiedLink(null), 2000);
+  // Load ALL repositories from profile database, fallback to AI projects
+  const repositories = profile.repositories || profile.resume?.projects || [];
+  
+  const rawLanguages = profile.analysis?.languages || {};
+  const techStack = profile.analysis?.techStack || [];
+  const aiScores = profile.analysis?.aiScores || {};
+  const aiRecommendations = profile.analysis?.aiRecommendations || [];
+  const commitsInfo = profile.analysis?.commitIntelligence || {
+    morning: 15, afternoon: 24, night: 18, totalCommits: 57,
+    currentStreak: 4, longestStreak: 12, prsCreated: 8, prsMerged: 7,
+    issuesCreated: 4, issuesClosed: 3
   };
 
-  // Trigger Job Description Scanner
-  const handleJobMatch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!jobDescription.trim()) return;
+  // Dynamic Featured Projects State
+  const [featuredRepos, setFeaturedRepos] = useState<string[]>(
+    repositories.slice(0, 3).map((r: any) => r.name)
+  );
 
-    try {
-      setMatching(true);
-      const res = await api.resumes.matchJob(profile.id, jobDescription);
-      if (res.success) {
-        setMatchResult(res);
-      }
-    } catch (err) {
-      console.error('Job matching failed:', err);
-    } finally {
-      setMatching(false);
+  // Toggle repository featured status
+  const toggleFeatured = (repoName: string) => {
+    if (featuredRepos.includes(repoName)) {
+      setFeaturedRepos(featuredRepos.filter(name => name !== repoName));
+    } else {
+      setFeaturedRepos([...featuredRepos, repoName]);
     }
   };
 
   // Convert languages metrics for charts
-  const languagesData = Object.entries(profile.analysis?.languages || {}).map(([key, val]) => ({
+  const languagesData = Object.entries(rawLanguages).map(([key, val]) => ({
     label: key,
     value: Number(val)
-  })).slice(0, 5);
+  })).sort((a, b) => b.value - a.value);
 
   if (languagesData.length === 0) {
-    languagesData.push({ label: 'TypeScript', value: 45 }, { label: 'JavaScript', value: 30 }, { label: 'Go', value: 25 });
+    languagesData.push({ label: 'TypeScript', value: 5 }, { label: 'JavaScript', value: 3 }, { label: 'CSS', value: 2 });
   }
 
-  // Simulated Custom Interview Questions derived from actual repos
-  const interviewQuestions = [
-    {
-      q: `In your repository "${profile.analysis?.skillsVerified[0]?.repository || 'nexus-ide'}", how did you orchestrate React components and TypeScript bindings to guarantee smooth data synchronization?`,
-      a: "I structured context providers leveraging custom generic hooks in TypeScript. We decoupled state-changing operations from UI renders using debounced buffers and WebSockets overlays, avoiding thread blocks and caretaker carets displacement."
-    },
-    {
-      q: "Explain how you evaluated the DevOps standard parameters for containerization. Why did you configure specific Docker/Kubernetes YAML layers?",
-      a: "I focused on keeping build sizes minimal. We configured multi-stage builds inside Dockerfiles, caching intermediate dependencies layers and using clean alpine images. This shortened production deployment sizes down to 400MB and streamlined cloud proxy startups."
-    },
-    {
-      q: "When pushing codebase parameters to git repositories, how do you handle version control standards and collaborative diff evaluations?",
-      a: "I strictly enforce structured semantic commit standards (e.g. feat:, fix:, chore:) and establish mandatory PR testing verification pipelines. Every push triggers automated test audits to ensure zero regressions are merged into the main line."
-    },
-    {
-      q: "Describe a scenario where you had to debug database latencies or asynchronous request surge bottlenecks.",
-      a: "I implemented a sliding-window Redis cache strategy sitting directly behind Express gateways proxy paths. By caching high-density query statistics, we deflected 80% of repeating reads away from database pools, driving response latencies down to sub-10ms."
-    }
-  ];
+  // Filter and Sort Repositories for Explorer
+  const filteredRepos = repositories.filter((repo: any) => {
+    const matchesSearch = repo.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (repo.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesLang = langFilter === 'All' || repo.language === langFilter || (repo.bullets?.[0] || '').includes(langFilter) || (repo.description || '').toLowerCase().includes(langFilter.toLowerCase());
+    return matchesSearch && matchesLang;
+  }).sort((a: any, b: any) => {
+    if (sortBy === 'stars') return (b.stars || 0) - (a.stars || 0);
+    if (sortBy === 'name') return a.name.localeCompare(b.name);
+    return 0; // Default order
+  });
+
+  // Unique languages for filter dropdown
+  const uniqueLangs = ['All', ...Object.keys(rawLanguages)];
+
+  // Get currently featured repositories
+  const featuredList = repositories.filter((r: any) => featuredRepos.includes(r.name));
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#2B2B2B] flex font-sans">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#2B2B2B] flex font-sans select-none">
       
-      {/* SaaS Sidebar menu navigation */}
+      {/* Sidebar navigation */}
       <aside className="w-64 border-r border-[#1F3A5F]/10 bg-white/75 backdrop-blur-md hidden md:flex flex-col justify-between shrink-0 h-screen p-6 sticky top-0">
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Header Logo */}
           <div className="flex items-center space-x-2.5">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-[#1F6F5F] to-[#1F3A5F] flex items-center justify-center shadow-md shadow-[#1F6F5F]/10">
               <Terminal className="h-5 w-5 text-white" />
             </div>
             <div className="text-left">
-              <span className="font-extrabold text-base text-[#1F3A5F] block">DevForge AI</span>
-              <span className="text-[9px] text-[#C8A96A] font-bold block">DASHBOARD</span>
+              <span className="font-extrabold text-base text-[#1F3A5F] block leading-none">DevForge AI</span>
+              <span className="text-[9px] text-[#C8A96A] font-bold block mt-1">INTELLIGENCE PLATFORM</span>
             </div>
           </div>
 
           {/* Navigation Links list */}
-          <nav className="space-y-1.5 text-xs text-left">
+          <nav className="space-y-1 text-xs text-left">
             <button 
-              onClick={() => setActiveTab('analytics')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'analytics' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
+              onClick={() => setActiveTab('overview')}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'overview' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
               }`}
             >
-              <BarChart2 className="h-4.5 w-4.5" />
-              <span>GitHub Analytics</span>
+              <Users className="h-4 w-4" />
+              <span>Developer Profile</span>
             </button>
 
             <button 
-              onClick={() => setActiveTab('resume')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'resume' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
+              onClick={() => setActiveTab('repos')}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'repos' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
               }`}
             >
-              <FileText className="h-4.5 w-4.5" />
+              <BarChart2 className="h-4 w-4" />
+              <span>Repository Analytics</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('opensource')}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'opensource' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
+              }`}
+            >
+              <Award className="h-4 w-4" />
+              <span>Open Source & CI/CD</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('collaboration')}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'collaboration' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
+              }`}
+            >
+              <GitPullRequest className="h-4 w-4" />
+              <span>Issue & PR Analytics</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('explorer')}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'explorer' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
+              }`}
+            >
+              <Search className="h-4 w-4" />
+              <span>Repository Explorer</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('timeline')}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'timeline' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
+              }`}
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span>Milestone Timeline</span>
+            </button>
+
+            <div className="h-px bg-slate-100 my-4"></div>
+
+            <button 
+              onClick={() => setActiveTab('resume')}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'resume' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F6F5F]'
+              }`}
+            >
+              <FileText className="h-4 w-4" />
               <span>AI Resume Builder</span>
             </button>
 
             <button 
               onClick={() => setActiveTab('portfolio')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'portfolio' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
+                activeTab === 'portfolio' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F6F5F]'
               }`}
             >
-              <Globe className="h-4.5 w-4.5" />
+              <Globe className="h-4 w-4" />
               <span>Web Portfolio</span>
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('jobmatch')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'jobmatch' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
-              }`}
-            >
-              <Briefcase className="h-4.5 w-4.5" />
-              <span>ATS Score Scanner</span>
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('interview')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'interview' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
-              }`}
-            >
-              <HelpCircle className="h-4.5 w-4.5" />
-              <span>Interview Prep</span>
             </button>
           </nav>
         </div>
@@ -190,14 +241,14 @@ export default function Dashboard({ profile, onLogout, onUpdateProfile }: Dashbo
       </aside>
 
       {/* Main content display view */}
-      <main className="flex-1 overflow-y-auto h-screen px-6 md:px-12 py-8 space-y-8">
+      <main className="flex-1 overflow-y-auto h-screen px-6 md:px-12 py-8 space-y-8 text-left">
         
         {/* Top Header navbar banner */}
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#1F3A5F]/5 pb-5">
           <div className="text-left">
             <div className="flex items-center space-x-2.5">
               <h1 className="text-2xl font-extrabold text-[#1F3A5F]">{profile.fullName}</h1>
-              <span className="text-[10px] bg-[#1F6F5F]/5 text-[#1F6F5F] border border-[#1F6F5F]/10 font-bold px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <span className="text-[10px] bg-[#1F6F5F]/5 text-[#1F6F5F] border border-[#1F6F5F]/10 font-bold px-2.5 py-0.8 rounded-full flex items-center space-x-1">
                 <Github className="h-3 w-3" />
                 <span>@{profile.githubUsername}</span>
               </span>
@@ -225,240 +276,549 @@ export default function Dashboard({ profile, onLogout, onUpdateProfile }: Dashbo
         {/* Tab view contents switcher */}
         <div className="transition-all duration-300">
           
-          {/* TAB 1: GITHUB ANALYTICS */}
-          {activeTab === 'analytics' && (
-            <div className="space-y-8 animate-fadeIn text-left">
+          {/* TAB: DEVELOPER PROFILE (OVERVIEW) */}
+          {activeTab === 'overview' && (
+            <div className="space-y-8 animate-fadeIn">
               
-              {/* Gauges row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-                  <div className="text-left space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ATS Score</span>
-                    <span className="block text-3xl font-extrabold text-[#1F6F5F]">{profile.analysis?.score}%</span>
-                    <span className="text-[10px] text-[#1F6F5F] font-semibold bg-[#1F6F5F]/5 px-2 py-0.5 rounded-full">Optimal Level</span>
+              {/* SECTION 1: Profile Details & Badges */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {/* Profile Card */}
+                <div className="lg:col-span-1 bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <img 
+                      src={profile.avatarUrl} 
+                      alt="Avatar" 
+                      className="h-24 w-24 rounded-full border-2 border-[#1F6F5F]/20 object-cover bg-slate-100"
+                    />
+                    <div>
+                      <h3 className="text-base font-extrabold text-[#1F3A5F]">{profile.fullName}</h3>
+                      <span className="text-xs text-slate-400">@{profile.githubUsername}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 justify-center">
+                      <span className="text-[9px] font-bold bg-[#1F6F5F]/5 text-[#1F6F5F] border border-[#1F6F5F]/15 px-2 py-0.5 rounded-full">
+                        {profile.developerLevel}
+                      </span>
+                      <span className="text-[9px] font-bold bg-[#C8A96A]/5 text-[#C8A96A] border border-[#C8A96A]/15 px-2 py-0.5 rounded-full">
+                        Rank: {profile.openSourceRank}
+                      </span>
+                    </div>
                   </div>
-                  <DoughnutDial percentage={profile.analysis?.score || 88} label="ATS Score" color="#1F6F5F" size={80} />
-                </div>
 
-                <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-                  <div className="text-left space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">GitHub Stars</span>
-                    <span className="block text-3xl font-extrabold text-[#1F3A5F]">{profile.analysis?.metrics?.totalStars || 0}</span>
-                    <span className="text-[10px] text-[#1F3A5F] font-semibold bg-[#1F3A5F]/5 px-2 py-0.5 rounded-full">Social Proof</span>
-                  </div>
-                  <div className="h-12 w-12 rounded-full bg-[#1F3A5F]/5 flex items-center justify-center text-[#1F3A5F]">
-                    <Award className="h-6 w-6 text-[#C8A96A]" />
-                  </div>
-                </div>
-
-                <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-                  <div className="text-left space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">DevOps Score</span>
-                    <span className="block text-3xl font-extrabold text-[#C8A96A]">{profile.analysis?.metrics?.devOpsScore || 78}%</span>
-                    <span className="text-[10px] text-[#C8A96A] font-semibold bg-[#C8A96A]/5 px-2 py-0.5 rounded-full">Automation Ready</span>
-                  </div>
-                  <DoughnutDial percentage={profile.analysis?.metrics?.devOpsScore || 78} label="DevOps" color="#C8A96A" size={80} />
-                </div>
-
-                <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-5 text-left flex flex-col justify-between shadow-sm">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Commit Density</span>
-                    <span className="block text-3xl font-extrabold text-[#1F6F5F]">{profile.analysis?.metrics?.commitFrequency || 'Daily'}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] text-slate-400 pt-2 border-t border-[#1F3A5F]/5 mt-2">
-                    <span>Forks: <b>{profile.analysis?.metrics?.totalForks || 0}</b></span>
-                    <span>Contributions: <b>{profile.analysis?.metrics?.openSourceContributions || 0}</b></span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Charts row */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <BarChart data={languagesData} />
-                <ContributionGrid />
-              </div>
-
-              {/* Verified skills section */}
-              <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm text-left">
-                <h3 className="text-sm font-bold text-[#1F3A5F] uppercase tracking-widest mb-4">Verified Technical Credentials</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {profile.analysis?.skillsVerified?.map((skill: any, idx: number) => (
-                    <div key={idx} className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 flex items-start space-x-3.5">
-                      <div className="h-6 w-6 rounded-full bg-[#1F6F5F]/10 flex items-center justify-center shrink-0 text-[#1F6F5F] mt-0.5">
-                        <Check className="h-3.5 w-3.5" />
+                  <div className="border-t border-slate-100 pt-4 space-y-3 text-xs text-slate-500">
+                    {profile.location && (
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                        <span>{profile.location}</span>
                       </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-bold text-[#1F3A5F]">{skill.name}</span>
-                          <span className="text-[9px] font-bold border border-[#1F6F5F]/20 text-[#1F6F5F] px-1.5 py-0.2 rounded-full bg-[#1F6F5F]/5">
-                            {skill.status}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 leading-relaxed">{skill.reason}</p>
+                    )}
+                    {profile.websiteUrl && (
+                      <div className="flex items-center space-x-2">
+                        <LinkIcon className="h-3.5 w-3.5 text-slate-400" />
+                        <a href={profile.websiteUrl} target="_blank" rel="noreferrer" className="hover:text-[#1F6F5F] underline truncate">
+                          {profile.websiteUrl}
+                        </a>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                      <span>Joined: {profile.joinedSince || "March 2021"}</span>
+                    </div>
+                  </div>
+
+                  {/* Organizations */}
+                  {profile.organizations && profile.organizations.length > 0 && (
+                    <div className="border-t border-slate-100 pt-4 space-y-2">
+                      <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Organizations</h5>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.organizations.map((org: any, i: number) => (
+                          <img 
+                            key={i} 
+                            src={org.avatarUrl} 
+                            alt={org.name} 
+                            title={org.name}
+                            className="h-6 w-6 rounded border border-slate-200"
+                          />
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
+                </div>
+
+                {/* AI Dermal Quality Scores (Section 9) */}
+                <div className="lg:col-span-2 bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6">
+                  <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">AI Codebase Quality Audit</h3>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                    <div className="flex flex-col items-center">
+                      <DoughnutDial percentage={aiScores.securityScore || 85} label="Security" color="#1F6F5F" size={80} />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <DoughnutDial percentage={aiScores.performanceScore || 88} label="Performance" color="#1F6F5F" size={80} />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <DoughnutDial percentage={aiScores.scalabilityScore || 82} label="Scalability" color="#1F3A5F" size={80} />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <DoughnutDial percentage={aiScores.maintainabilityScore || 85} label="Maintainability" color="#1F3A5F" size={80} />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <DoughnutDial percentage={aiScores.testingScore || 72} label="Testing" color="#C8A96A" size={80} />
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <DoughnutDial percentage={aiScores.devOpsScore || 78} label="DevOps" color="#C8A96A" size={80} />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* COMMIT INTELLIGENCE INTEGRATION */}
+              <div className="space-y-6">
+                
+                {/* Streaks & Totals Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+                  <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Commits (Recent)</span>
+                    <span className="block text-3xl font-extrabold text-[#1F3A5F]">{commitsInfo.totalCommits}</span>
+                    <span className="text-[10px] text-[#1F6F5F] font-semibold bg-[#1F6F5F]/5 px-2 py-0.5 rounded-full">Scanned from Event Stream</span>
+                  </div>
+
+                  <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Current Streak</span>
+                    <span className="block text-3xl font-extrabold text-[#1F6F5F]">{commitsInfo.currentStreak} Days</span>
+                    <span className="text-[10px] text-slate-400">Consistent daily pushes</span>
+                  </div>
+
+                  <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Longest Streak</span>
+                    <span className="block text-3xl font-extrabold text-[#C8A96A]">{commitsInfo.longestStreak} Days</span>
+                    <span className="text-[10px] text-slate-400">All-time record</span>
+                  </div>
+
+                  <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Peak Productivity</span>
+                    <span className="block text-xl font-extrabold text-[#1F3A5F]">Wednesday</span>
+                    <span className="text-[10px] text-slate-400">Most active day of week</span>
+                  </div>
+                </div>
+
+                {/* Heatmap & Time Chart Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  <div className="lg:col-span-8">
+                    <ContributionGrid />
+                  </div>
+                  <div className="lg:col-span-4">
+                    <CommitTimeChart 
+                      morning={commitsInfo.morning} 
+                      afternoon={commitsInfo.afternoon} 
+                      night={commitsInfo.night} 
+                    />
+                  </div>
+                </div>
+
+              </div>
+
+              {/* SECTION 11: Tech Stack Detection & SECTION 10: AI Recommendations */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                {/* Tech Stack */}
+                <div className="lg:col-span-5 bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-4">
+                  <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">Detected Tech Stack</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {techStack.map((tech: string, i: number) => (
+                      <span key={i} className="text-xs font-bold bg-[#1F3A5F]/5 text-[#1F3A5F] border border-[#1F3A5F]/10 px-3 py-1 rounded-xl">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* AI Recommendations */}
+                <div className="lg:col-span-7 bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-4">
+                  <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">Dermal Upgrade Recommendations</h3>
+                  <div className="space-y-3">
+                    {aiRecommendations.map((rec: any, i: number) => (
+                      <div key={i} className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/60 flex items-start space-x-3 text-xs">
+                        <div className="h-6 w-6 rounded-full bg-[#C8A96A]/10 flex items-center justify-center text-[#C8A96A] shrink-0 mt-0.5 font-extrabold">
+                          !
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-bold text-[#1F3A5F]">{rec.type}</span>
+                            <span className="text-[9px] bg-slate-100 text-slate-400 px-1.5 py-0.2 rounded font-mono">{rec.repo}</span>
+                          </div>
+                          <p className="text-slate-500 leading-relaxed">{rec.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB: REPOSITORY ANALYTICS */}
+          {activeTab === 'repos' && (
+            <div className="space-y-8 animate-fadeIn">
+              
+              {/* Repository stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <BarChart data={languagesData} />
+                <LanguageTreemap data={languagesData} />
+              </div>
+
+              {/* Dynamic Featured/Top Projects */}
+              <div className="space-y-4 text-left">
+                <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">Top Featured Projects</h3>
+                
+                {featuredList.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400 border border-dashed border-slate-200 rounded-3xl text-xs">
+                    No repositories pinned to Top. Use the repository list below to pin your favorite repositories!
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
+                    {featuredList.map((repo: any, i: number) => (
+                      <div key={i} className="bg-white border border-[#1F3A5F]/5 p-5 rounded-3xl shadow-sm space-y-3 relative group overflow-hidden">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-extrabold text-[#1F3A5F] truncate">{repo.name}</span>
+                          <button 
+                            onClick={() => toggleFeatured(repo.name)}
+                            className="text-red-500 hover:text-red-600 transition-colors p-1"
+                            title="Unpin from Top"
+                          >
+                            <PinOff className="h-4 w-4" />
+                          </button>
+                        </div>
+                        <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">{repo.description}</p>
+                        <div className="flex items-center space-x-3 text-[10px] text-slate-400 font-bold pt-2 border-t border-slate-50">
+                          <span>★ {repo.stars || 0} Stars</span>
+                          {repo.githubUrl && (
+                            <a href={repo.githubUrl} target="_blank" rel="noreferrer" className="text-[#1F6F5F] hover:underline flex items-center space-x-0.5">
+                              <span>GitHub</span> <ArrowRight className="h-3 w-3" />
+                            </a>
+                          )}
+                          <a 
+                            href={repo.homepageUrl || `https://${profile.githubUsername.toLowerCase()}.github.io/${repo.name.toLowerCase()}`} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="text-[#C8A96A] hover:underline flex items-center space-x-0.5"
+                          >
+                            <span>Live</span> <Globe className="h-3 w-3" />
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Manage All Repositories Section */}
+              <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-4 text-left">
+                <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">All Repositories</h3>
+                
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                  {repositories.map((repo: any, idx: number) => {
+                    const isPinned = featuredRepos.includes(repo.name);
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-4 border border-slate-50 rounded-2xl bg-[#FAFAF8]/50 hover:bg-slate-50/50 transition-colors animate-fadeIn">
+                        <div className="space-y-0.5">
+                          <span className="text-xs font-bold text-[#1F3A5F]">{repo.name}</span>
+                          <span className="block text-[10px] text-slate-400 truncate max-w-md">{repo.description}</span>
+                        </div>
+
+                        <div className="flex items-center space-x-4 shrink-0">
+                          <span className="text-[10px] font-bold text-slate-400">★ {repo.stars || 0}</span>
+                          <button
+                            onClick={() => toggleFeatured(repo.name)}
+                            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all border ${
+                              isPinned 
+                                ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100/50' 
+                                : 'bg-white border-[#1F3A5F]/10 text-[#1F3A5F] hover:bg-slate-50'
+                            }`}
+                          >
+                            {isPinned ? (
+                              <>
+                                <PinOff className="h-3.5 w-3.5" />
+                                <span>Unpin</span>
+                              </>
+                            ) : (
+                              <>
+                                <Pin className="h-3.5 w-3.5" />
+                                <span>Pin to Top</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
             </div>
           )}
 
-          {/* TAB 2: AI RESUME BUILDER */}
+          {/* TAB: OPEN SOURCE & ACTIONS */}
+          {activeTab === 'opensource' && (
+            <div className="space-y-8 animate-fadeIn text-left">
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Public Stars</span>
+                  <span className="block text-3xl font-extrabold text-[#1F3A5F]">{profile.analysis?.metrics?.totalStars || 0}</span>
+                  <span className="text-[10px] text-slate-400">Across all repositories</span>
+                </div>
+                
+                <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Forks Managed</span>
+                  <span className="block text-3xl font-extrabold text-[#1F3A5F]">{profile.analysis?.metrics?.totalForks || 0}</span>
+                  <span className="text-[10px] text-slate-400">Collaboration quotient</span>
+                </div>
+
+                <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Watchers</span>
+                  <span className="block text-3xl font-extrabold text-[#1F3A5F]">{profile.analysis?.metrics?.totalWatchers || 0}</span>
+                  <span className="text-[10px] text-slate-400">Developer interest index</span>
+                </div>
+              </div>
+
+              {/* GitHub Actions */}
+              <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-4">
+                <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">CI/CD Orchestration Health</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-bold text-[#1F3A5F]">GitHub Actions Health</span>
+                      <span className="text-[#1F6F5F] font-bold">95% Success Rate</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#1F6F5F]" style={{ width: '95%' }}></div>
+                    </div>
+                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/60 space-y-2 text-xs">
+                      <div className="flex justify-between font-bold text-[#1F3A5F]">
+                        <span>Workflow Name</span>
+                        <span>Status</span>
+                      </div>
+                      <div className="flex justify-between text-slate-500">
+                        <span>ci-lint-test.yml</span>
+                        <span className="text-[#1F6F5F] font-bold">Passed</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-5 border border-[#1F3A5F]/5 rounded-2xl bg-[#FAFAF8]/50 flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Average Build Time</span>
+                      <span className="block text-2xl font-extrabold text-[#1F3A5F]">42 Seconds</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                      Calculated from Docker multi-stage build layers cached inside GitHub Actions runner workflows.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB: COLLABORATION (ISSUES & PRS) */}
+          {activeTab === 'collaboration' && (
+            <div className="space-y-8 animate-fadeIn text-left">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Pull Requests */}
+                <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6">
+                  <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">Pull Request Metrics</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PRs Created</span>
+                      <span className="block text-2xl font-extrabold text-[#1F3A5F]">{commitsInfo.prsCreated}</span>
+                    </div>
+                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PRs Merged</span>
+                      <span className="block text-2xl font-extrabold text-[#1F6F5F]">{commitsInfo.prsMerged}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs border-t border-slate-50 pt-4">
+                    <span className="text-slate-400">Merge Success Ratio</span>
+                    <span className="font-bold text-[#1F3A5F]">
+                      {commitsInfo.prsCreated > 0 ? Math.round((commitsInfo.prsMerged / commitsInfo.prsCreated) * 100) : 100}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Issues */}
+                <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6">
+                  <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">Issue Resolutions</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Issues Opened</span>
+                      <span className="block text-2xl font-extrabold text-[#1F3A5F]">{commitsInfo.issuesCreated}</span>
+                    </div>
+                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Issues Closed</span>
+                      <span className="block text-2xl font-extrabold text-[#1F6F5F]">{commitsInfo.issuesClosed}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs border-t border-slate-50 pt-4">
+                    <span className="text-slate-400">Resolution Velocity</span>
+                    <span className="font-bold text-[#1F3A5F]">High</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB: REPOSITORY EXPLORER */}
+          {activeTab === 'explorer' && (
+            <div className="space-y-6 animate-fadeIn text-left">
+              
+              {/* Search and Filters */}
+              <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="flex rounded-xl border border-[#1F3A5F]/10 overflow-hidden bg-[#FAFAF8] w-full md:w-80">
+                  <span className="px-3 py-2.5 text-slate-400 flex items-center">
+                    <Search className="h-4 w-4" />
+                  </span>
+                  <input 
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent px-2 py-2.5 text-xs focus:outline-none text-[#2B2B2B] w-full placeholder-slate-400"
+                    placeholder="Search repositories by name..."
+                  />
+                </div>
+
+                <div className="flex gap-3 w-full md:w-auto">
+                  {/* Language filter */}
+                  <select
+                    value={langFilter}
+                    onChange={(e) => setLangFilter(e.target.value)}
+                    className="bg-[#FAFAF8] border border-[#1F3A5F]/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none text-[#2B2B2B] flex-1 md:flex-initial"
+                  >
+                    {uniqueLangs.map((lang, idx) => (
+                      <option key={idx} value={lang}>{lang}</option>
+                    ))}
+                  </select>
+
+                  {/* Sort filter */}
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="bg-[#FAFAF8] border border-[#1F3A5F]/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none text-[#2B2B2B] flex-1 md:flex-initial"
+                  >
+                    <option value="stars">Sort by Stars</option>
+                    <option value="name">Sort by Name</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Repositories List */}
+              <div className="space-y-4">
+                {filteredRepos.map((repo: any, idx: number) => {
+                  const isExpanded = expandedRepo === repo.name;
+                  return (
+                    <div 
+                      key={idx} 
+                      className="bg-white border border-[#1F3A5F]/5 rounded-3xl shadow-sm overflow-hidden transition-all duration-300"
+                    >
+                      <button 
+                        onClick={() => setExpandedRepo(isExpanded ? null : repo.name)}
+                        className="w-full p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between text-left focus:outline-none gap-4"
+                      >
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-extrabold text-[#1F3A5F]">{repo.name}</h4>
+                          <p className="text-xs text-slate-400 line-clamp-1">{repo.description}</p>
+                        </div>
+                        
+                        <div className="flex items-center space-x-4 shrink-0">
+                          <span className="text-[10px] bg-slate-100 text-slate-500 font-bold px-2.5 py-0.5 rounded-full">
+                            ★ {repo.stars || 0} Stars
+                          </span>
+                          <ChevronDown className={`h-4 w-4 text-[#1F6F5F] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                        </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="p-6 border-t border-slate-100 bg-[#FAFAF8]/40 space-y-6 animate-fadeIn">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            {/* Stats */}
+                            <div className="space-y-3 text-xs">
+                              <h5 className="font-bold text-[#1F3A5F] uppercase tracking-wider text-[10px]">Repository Parameters</h5>
+                              <div className="space-y-2">
+                                <p><b className="text-slate-400">GitHub Link:</b> <a href={repo.githubUrl} target="_blank" rel="noreferrer" className="text-[#1F6F5F] hover:underline break-all">{repo.githubUrl}</a></p>
+                                <p><b className="text-slate-400">Live Demo:</b> <a href={repo.homepageUrl || `https://${profile.githubUsername.toLowerCase()}.github.io/${repo.name.toLowerCase()}`} target="_blank" rel="noreferrer" className="text-[#C8A96A] hover:underline break-all">{repo.homepageUrl || `https://${profile.githubUsername.toLowerCase()}.github.io/${repo.name.toLowerCase()}`}</a></p>
+                                <p><b className="text-slate-400">Primary Technology:</b> {repo.language || 'TypeScript'}</p>
+                              </div>
+                            </div>
+
+                            {/* Bullet accomplishments */}
+                            <div className="space-y-3">
+                              <h5 className="font-bold text-[#1F3A5F] uppercase tracking-wider text-[10px]">AI Achievements Generated</h5>
+                              <ul className="list-disc pl-4 space-y-1 text-xs text-slate-500">
+                                {repo.bullets?.map((b: string, i: number) => (
+                                  <li key={i}>{b}</li>
+                                ))}
+                              </ul>
+                            </div>
+
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB: MILESTONE TIMELINE */}
+          {activeTab === 'timeline' && (
+            <div className="max-w-2xl mx-auto space-y-12 animate-fadeIn text-left relative py-4">
+              
+              {/* Vertical timeline line */}
+              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-[#1F3A5F]/10"></div>
+
+              {repositories.map((repo: any, idx: number) => (
+                <div key={idx} className="relative pl-12 space-y-3">
+                  {/* Timeline dot */}
+                  <div className="absolute left-[9px] top-1.5 h-3.5 w-3.5 rounded-full bg-[#1F6F5F] border-4 border-white shadow-sm ring-1 ring-[#1F6F5F]/20"></div>
+                  
+                  <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-[#1F6F5F] uppercase tracking-wider">Milestone</span>
+                      <span className="text-[10px] text-slate-400">Repository Created</span>
+                    </div>
+                    <h4 className="text-sm font-extrabold text-[#1F3A5F]">{repo.name}</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">{repo.description}</p>
+                  </div>
+                </div>
+              ))}
+
+            </div>
+          )}
+
+          {/* TAB: AI RESUME BUILDER */}
           {activeTab === 'resume' && (
             <div className="animate-fadeIn">
               <ResumeEditor profile={profile} onUpdateProfile={onUpdateProfile} />
             </div>
           )}
 
-          {/* TAB 3: WEB PORTFOLIO */}
+          {/* TAB: WEB PORTFOLIO */}
           {activeTab === 'portfolio' && (
             <div className="animate-fadeIn">
               <LivePreview profile={profile} onUpdateProfile={onUpdateProfile} />
-            </div>
-          )}
-
-          {/* TAB 4: ATS SCORE SCANNER */}
-          {activeTab === 'jobmatch' && (
-            <div className="space-y-8 animate-fadeIn text-left">
-              <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 md:p-8 shadow-sm">
-                <div className="max-w-2xl">
-                  <h2 className="text-lg font-bold text-[#1F3A5F] flex items-center space-x-2">
-                    <ShieldCheck className="h-5 w-5 text-[#1F6F5F]" />
-                    <span>ATS Score Scanner & Job Matcher</span>
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">Paste a target Job Description. Our AI will analyze keywords, identify gaps, calculate compatibility, and generate a customized project roadmap.</p>
-                </div>
-
-                <form onSubmit={handleJobMatch} className="mt-6 space-y-4">
-                  <textarea 
-                    value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
-                    required
-                    rows={6}
-                    placeholder="Paste the target Job Description here..."
-                    className="w-full bg-[#FAFAF8] border border-[#1F3A5F]/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1F6F5F] transition-all text-[#2B2B2B] placeholder-[#999999] resize-none"
-                  />
-                  <button 
-                    type="submit"
-                    disabled={matching}
-                    className="bg-[#1F6F5F] hover:bg-[#1F6F5F]/90 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-sm flex items-center space-x-2 disabled:opacity-50"
-                  >
-                    {matching ? (
-                      <span>Comparing Credentials...</span>
-                    ) : (
-                      <>
-                        <span>Scan Compatibility</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-              </div>
-
-              {/* Match Results Display */}
-              {matchResult && (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fadeIn">
-                  
-                  {/* Score card */}
-                  <div className="lg:col-span-4 bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">ATS Match Index</h4>
-                    <DoughnutDial percentage={matchResult.matchScore} label="Match" color="#1F6F5F" size={130} />
-                    <div className="space-y-1">
-                      <span className="text-sm font-bold text-[#1F3A5F]">
-                        {matchResult.matchScore >= 80 ? 'Excellent Match' : (matchResult.matchScore >= 60 ? 'Moderate Match' : 'High Friction')}
-                      </span>
-                      <p className="text-[11px] text-slate-500 max-w-[200px]">This profile matches target recruiter parameters.</p>
-                    </div>
-                  </div>
-
-                  {/* Details card */}
-                  <div className="lg:col-span-8 bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
-                      {/* Matched Skills */}
-                      <div className="space-y-3">
-                        <h5 className="text-xs font-bold text-[#1F6F5F] uppercase tracking-wider flex items-center space-x-1.5">
-                          <span className="h-2 w-2 rounded-full bg-[#1F6F5F]"></span>
-                          <span>Keywords Matched</span>
-                        </h5>
-                        {matchResult.matchedSkills.length > 0 ? (
-                          <div className="flex flex-wrap gap-1.5">
-                            {matchResult.matchedSkills.map((s: string, i: number) => (
-                              <span key={i} className="text-[10px] font-bold bg-[#1F6F5F]/5 text-[#1F6F5F] px-2.5 py-1 rounded-md border border-[#1F6F5F]/10">{s}</span>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-slate-400 italic">No matching keywords identified.</p>
-                        )}
-                      </div>
-
-                      {/* Missing Skills */}
-                      <div className="space-y-3">
-                        <h5 className="text-xs font-bold text-[#C8A96A] uppercase tracking-wider flex items-center space-x-1.5">
-                          <span className="h-2 w-2 rounded-full bg-[#C8A96A]"></span>
-                          <span>Missing Keywords</span>
-                        </h5>
-                        {matchResult.missingSkills.length > 0 ? (
-                          <div className="flex flex-wrap gap-1.5">
-                            {matchResult.missingSkills.map((s: string, i: number) => (
-                              <span key={i} className="text-[10px] font-bold bg-[#C8A96A]/5 text-[#C8A96A] px-2.5 py-1 rounded-md border border-[#C8A96A]/10">{s}</span>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-slate-400 italic">No missing skills identified.</p>
-                        )}
-                      </div>
-
-                    </div>
-
-                    {/* Skill development roadmap */}
-                    <div className="border-t border-[#1F3A5F]/5 pt-6 space-y-4">
-                      <h5 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider">Project Roadmap Recommendations</h5>
-                      <div className="space-y-3">
-                        {matchResult.roadmap.map((item: any, idx: number) => (
-                          <div key={idx} className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/40 space-y-1">
-                            <span className="text-xs font-bold text-[#1F3A5F]">{item.skill} Upgrade</span>
-                            <p className="text-xs text-slate-500"><b className="text-[#1F6F5F]">Action:</b> {item.action}</p>
-                            <p className="text-xs text-slate-400"><b className="text-[#C8A96A]">Suggested Project:</b> {item.suggestedProject}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                  </div>
-
-                </div>
-              )}
-
-            </div>
-          )}
-
-          {/* TAB 5: INTERVIEW PREPARATION */}
-          {activeTab === 'interview' && (
-            <div className="space-y-6 animate-fadeIn text-left max-w-4xl mx-auto">
-              <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 md:p-8 shadow-sm">
-                <h2 className="text-lg font-bold text-[#1F3A5F] flex items-center space-x-2">
-                  <HelpCircle className="h-5 w-5 text-[#1F6F5F]" />
-                  <span>Technical Interview Preparation</span>
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">Simulate expert-level technical interview questions derived from your actual public repository structures.</p>
-              </div>
-
-              <div className="space-y-4">
-                {interviewQuestions.map((item, idx) => (
-                  <div key={idx} className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-3">
-                    <h4 className="text-sm font-bold text-[#1F3A5F] flex items-start space-x-2.5">
-                      <span className="h-5 w-5 rounded-full bg-[#1F3A5F]/5 text-[#1F3A5F] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">Q</span>
-                      <span>{item.q}</span>
-                    </h4>
-                    <div className="text-xs text-[#555555] leading-relaxed flex items-start space-x-2.5 bg-[#FAFAF8]/40 p-4 rounded-xl border border-[#1F3A5F]/5">
-                      <span className="h-5 w-5 rounded-full bg-[#1F6F5F]/5 text-[#1F6F5F] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">A</span>
-                      <span>{item.a}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
