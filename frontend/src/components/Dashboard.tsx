@@ -675,7 +675,11 @@ export default function Dashboard({ profile, onLogout, onUpdateProfile }: Dashbo
           {/* TAB: AI RESUME BUILDER */}
           {activeTab === 'resume' && (
             <div className="animate-fadeIn">
-              <ResumeEditor profile={profile} onUpdateProfile={onUpdateProfile} />
+              <ResumeEditor 
+                profile={profile} 
+                onUpdateProfile={onUpdateProfile} 
+                featuredRepos={featuredRepos}
+              />
             </div>
           )}
 

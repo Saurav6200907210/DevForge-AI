@@ -66,12 +66,89 @@ const generateTailoredBullets = (role: string, company: string): string[] => {
   return bullets;
 };
 
+const generateTailoredProjectBullets = (name: string, description: string): string[] => {
+  const nameLower = name.toLowerCase();
+  const descLower = description.toLowerCase();
+  const bullets: string[] = [];
+
+  // 1. DevForge-AI
+  if (nameLower.includes('devforge') || descLower.includes('career') || descLower.includes('resume optimizer')) {
+    bullets.push("Architected a career intelligence platform that parses GitHub profiles to generate professional portfolios and ATS-optimized resumes.");
+    bullets.push("Engineered a React and Express full stack architecture with real-time markdown rendering and PDF generation tools.");
+    bullets.push("Implemented local quality auditing metrics to evaluate codebases, DevOps integration depth, and repository complexity.");
+  }
+  // 2. KubeVision
+  else if (nameLower.includes('kubevision') || nameLower.includes('kube') || descLower.includes('kubernetes')) {
+    bullets.push("Developed an interactive real-time topology dashboard to visualize complex Kubernetes cluster resources and configurations.");
+    bullets.push("Designed a clean, component-driven React interface that maps nodes, services, and pods into a visual hierarchy.");
+    bullets.push("Integrated active cluster state synchronization to present live status updates and network pathing of containerized apps.");
+  }
+  // 3. GitAnalyze-AI
+  else if (nameLower.includes('gitanalyze') || nameLower.includes('git') || descLower.includes('github') || descLower.includes('analyser')) {
+    bullets.push("Constructed an AI-powered GitHub profile analyzer utilizing public APIs to extract commit frequencies, PR velocities, and language splits.");
+    bullets.push("Developed visual charts and graphs using custom canvas components to represent developer consistency and streaks.");
+    bullets.push("Configured automated recommendations to advise developers on missing licenses, README details, and testing gaps.");
+  }
+  // 4. HireLens
+  else if (nameLower.includes('hirelens') || descLower.includes('hiring') || descLower.includes('recruiter')) {
+    bullets.push("Designed an AI hiring platform that parses resumes, ranks candidates, and generates recruiter-ready intelligence sheets.");
+    bullets.push("Created dynamic, responsive recruiter dashboards with search filters, candidate profiles, and PDF report downloads.");
+    bullets.push("Optimized candidate matching scoring latency using structured parsing algorithms and lightweight data storage.");
+  }
+  // 5. Startup Chronicle
+  else if (nameLower.includes('startup') || nameLower.includes('chronicle') || descLower.includes('startup research')) {
+    bullets.push("Built an AI startup research platform with competitor analysis, founder intelligence, and predictive business metrics.");
+    bullets.push("Implemented PDF report generation and interactive visual graphs representing market cap and valuation changes.");
+    bullets.push("Designed clean modular components to display predictive insights, reducing layout shifts and query load bounds.");
+  }
+  // 6. Terraform EC2
+  else if (nameLower.includes('terraform') || nameLower.includes('ec2') || descLower.includes('terraform')) {
+    bullets.push("Provisioned AWS EC2 infrastructure using Terraform (IaC) with dynamic AMI lookups and VPC routing policies.");
+    bullets.push("Orchestrated secure Security Groups and IAM Roles to enforce strict access rules and minimize cloud exposure risks.");
+    bullets.push("Created modular, dry (Don't Repeat Yourself) Terraform files to enable rapid, repeatable infrastructure deployments.");
+  }
+  // 7. CI/CD or Jenkins
+  else if (nameLower.includes('jenkins') || nameLower.includes('ci-cd') || descLower.includes('jenkins') || descLower.includes('webhook')) {
+    bullets.push("Configured end-to-end automated CI/CD pipelines utilizing Jenkins, GitHub Webhooks, Docker, and AWS EC2.");
+    bullets.push("Integrated automated email notifications and Slack alerts to instantly report build failures or pipeline statuses.");
+    bullets.push("Created multi-stage Docker builds to package NestJS/Express services, reducing production container sizes by 40%.");
+  }
+  // 8. General DevOps
+  else if (nameLower.includes('docker') || descLower.includes('docker') || descLower.includes('container')) {
+    bullets.push("Containerized real-time applications using multi-stage Docker configurations to ensure environment consistency.");
+    bullets.push("Orchestrated multi-service environments with Docker Compose, managing volume storage and network linking.");
+    bullets.push("Integrated health check scripts and recovery parameters inside containers for self-healing application deployments.");
+  }
+  // 9. Monitoring (Grafana/Prometheus)
+  else if (nameLower.includes('grafana') || nameLower.includes('prometheus') || descLower.includes('monitor')) {
+    bullets.push("Set up Prometheus metrics collection on Express.js apps, capturing request latencies and error rates.");
+    bullets.push("Designed professional Grafana dashboards to visualize server CPU, memory, and database connection metrics.");
+    bullets.push("Configured custom alerting rules with email/Slack integrations for preemptive infrastructure warning cycles.");
+  }
+  // 10. General Frontend
+  else if (descLower.includes('website') || descLower.includes('landing') || descLower.includes('portfolio') || descLower.includes('dashboard')) {
+    bullets.push("Developed a responsive web interface using React and Tailwind CSS, achieving high Lighthouse scores.");
+    bullets.push("Integrated smooth micro-animations and layouts to elevate user experience across mobile and desktop viewports.");
+    bullets.push("Authored clean modular structures to separate design components, improving readability and code maintainability.");
+  }
+  // 11. General/Fallback
+  else {
+    bullets.push(`Architected and developed the ${name} platform to resolve specific developer workflow bottlenecks.`);
+    bullets.push(`Leveraged modern programming paradigms and clean code patterns to write highly reusable components.`);
+    bullets.push(`Established automated deployment guidelines and verified software integrity via automated testing suites.`);
+  }
+
+  return bullets.slice(0, 3);
+};
+
+
 interface ResumeEditorProps {
   profile: any;
   onUpdateProfile: (updatedProfile: any) => void;
+  featuredRepos?: string[];
 }
 
-export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorProps) {
+export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }: ResumeEditorProps) {
   const resume = profile.resume || {
     template: 'emerald',
     atsScore: 85,
@@ -103,7 +180,47 @@ export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorP
   ]);
 
   // Project editing states
-  const [projects, setProjects] = useState<any[]>(resume.projects || []);
+  const [projects, setProjects] = useState<any[]>(() => {
+    if (featuredRepos && featuredRepos.length > 0) {
+      const allRepos = profile.repositories || [];
+      return allRepos
+        .filter((r: any) => featuredRepos.includes(r.name))
+        .map((repo: any) => ({
+          name: repo.name,
+          githubUrl: repo.githubUrl || repo.html_url || '',
+          homepageUrl: repo.homepageUrl || repo.homepage || '',
+          description: repo.description || '',
+          stars: repo.stars || 0,
+          bullets: generateTailoredProjectBullets(repo.name, repo.description || '')
+        }));
+    }
+    const baseProjects = resume.projects || [];
+    return baseProjects.map((p: any) => {
+      const hasGenericBullets = !p.bullets || p.bullets.length === 0 || p.bullets.some((b: string) => b.includes('leveraging modern software engineering patterns'));
+      return {
+        ...p,
+        bullets: hasGenericBullets ? generateTailoredProjectBullets(p.name, p.description || '') : p.bullets
+      };
+    });
+  });
+
+  // Sync projects when featuredRepos or profile.repositories updates
+  React.useEffect(() => {
+    if (featuredRepos) {
+      const allRepos = profile.repositories || [];
+      const syncedProjects = allRepos
+        .filter((r: any) => featuredRepos.includes(r.name))
+        .map((repo: any) => ({
+          name: repo.name,
+          githubUrl: repo.githubUrl || repo.html_url || '',
+          homepageUrl: repo.homepageUrl || repo.homepage || '',
+          description: repo.description || '',
+          stars: repo.stars || 0,
+          bullets: generateTailoredProjectBullets(repo.name, repo.description || '')
+        }));
+      setProjects(syncedProjects);
+    }
+  }, [featuredRepos, profile.repositories]);
 
   // Technical Achievements editing states
   const [achievements, setAchievements] = useState<any[]>(resume.achievements || []);
@@ -459,14 +576,22 @@ export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorP
             <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-6 animate-fadeIn">
               <div className="flex items-center justify-between border-b border-[#1F3A5F]/5 pb-3">
                 <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider">Featured Repositories</h4>
-                <button 
-                  onClick={addProject}
-                  className="text-xs font-bold text-[#1F6F5F] hover:text-[#1F6F5F]/80 flex items-center space-x-1"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Add Project</span>
-                </button>
+                {!featuredRepos && (
+                  <button 
+                    onClick={addProject}
+                    className="text-xs font-bold text-[#1F6F5F] hover:text-[#1F6F5F]/80 flex items-center space-x-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Project</span>
+                  </button>
+                )}
               </div>
+
+              {featuredRepos && (
+                <p className="text-[10px] text-slate-400 leading-normal bg-slate-50 border border-[#1F3A5F]/5 p-3 rounded-xl">
+                  💡 These repositories are synchronized with your <strong>Repository Analytics</strong> pins. Pin or unpin repositories there to change what's featured here.
+                </p>
+              )}
 
               {projects.length === 0 ? (
                 <div className="text-center py-8 text-slate-400 text-xs">
@@ -476,14 +601,16 @@ export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorP
                 <div className="space-y-6">
                   {projects.map((project, idx) => (
                     <div key={idx} className="p-5 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 space-y-4 relative group">
-                      <button 
-                        onClick={() => removeProject(idx)}
-                        className="absolute top-4 right-4 text-red-500 hover:text-red-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {!featuredRepos && (
+                        <button 
+                          onClick={() => removeProject(idx)}
+                          className="absolute top-4 right-4 text-red-500 hover:text-red-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Name</label>
                           <input 
@@ -498,21 +625,89 @@ export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorP
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Repository URL</label>
                           <input 
                             type="text"
-                            value={project.githubUrl}
+                            value={project.githubUrl || ''}
                             onChange={(e) => updateProject(idx, 'githubUrl', e.target.value)}
+                            className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Live Demo URL (Optional)</label>
+                          <input 
+                            type="text"
+                            value={project.homepageUrl || ''}
+                            onChange={(e) => updateProject(idx, 'homepageUrl', e.target.value)}
+                            placeholder="e.g. https://my-app.vercel.app"
                             className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Description</label>
-                        <textarea
-                          value={project.description}
-                          onChange={(e) => updateProject(idx, 'description', e.target.value)}
-                          rows={2}
-                          className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B] resize-none"
-                        />
+
+                      <div className="space-y-2 border-t border-slate-100 pt-3">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-bold text-[#1F3A5F] uppercase tracking-wider">Project Key Features (ATS Bullet Points)</label>
+                          <div className="flex items-center space-x-3">
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const updated = [...projects];
+                                updated[idx].bullets = generateTailoredProjectBullets(project.name || '', project.description || '');
+                                setProjects(updated);
+                              }}
+                              className="text-[10px] font-bold text-[#1F6F5F] hover:text-[#1F6F5F]/80 flex items-center space-x-1"
+                              title="Generate 3 short, professional, ATS-optimized key features based on project README/description"
+                            >
+                              <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                              <span>✨ Auto-Generate ATS Bullets</span>
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const updated = [...projects];
+                                updated[idx].bullets = [...(updated[idx].bullets || []), ''];
+                                setProjects(updated);
+                              }}
+                              className="text-[10px] font-bold text-slate-500 hover:text-slate-600 flex items-center space-x-1"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              <span>Add Bullet</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          {(project.bullets || []).map((bullet: string, bIdx: number) => (
+                            <div key={bIdx} className="flex items-center space-x-2">
+                              <span className="text-slate-400 text-xs">•</span>
+                              <input 
+                                type="text"
+                                value={bullet}
+                                onChange={(e) => {
+                                  const updated = [...projects];
+                                  updated[idx].bullets[bIdx] = e.target.value;
+                                  setProjects(updated);
+                                }}
+                                placeholder="Describe a key feature or engineering achievement of the project"
+                                className="flex-1 bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                              />
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...projects];
+                                  updated[idx].bullets = updated[idx].bullets.filter((_, bi) => bi !== bIdx);
+                                  setProjects(updated);
+                                }}
+                                className="text-red-500 hover:text-red-600 p-1.5 bg-red-50 border border-red-200 rounded-lg shrink-0"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                          {(project.bullets || []).length === 0 && (
+                            <div className="text-[11px] text-slate-400 italic">No bullets added yet. Click "Add Bullet" to add.</div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
