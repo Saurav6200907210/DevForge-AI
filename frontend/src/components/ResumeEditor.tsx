@@ -227,7 +227,7 @@ export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorP
           {/* Tabs header bar */}
           <div className="flex border-b border-[#1F3A5F]/5 text-xs font-bold bg-white/50 p-1 rounded-xl border">
             {[
-              { id: 'details', name: 'Clinical Details' },
+              { id: 'details', name: 'Profile Details' },
               { id: 'experience', name: 'Professional History' },
               { id: 'projects', name: 'Featured Projects' },
               { id: 'achievements', name: 'Achievements' }

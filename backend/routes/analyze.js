@@ -111,9 +111,9 @@ function generateMockAIDeveloperSuite(username, fullName, repos, techStack, fram
   
   // Professional summaries matching developer stacks
   const summaries = [
-    `High-impact Software Engineer with a strong track record of crafting robust applications, specialized in ${primaryLang} and modern frameworks like ${frameworks.slice(0, 3).join(', ')}. Proven history of open-source contributions and managing complex, modular codebases with high quality standards.`,
-    `Innovative Full-Stack Developer with deep expertise in full-cycle software construction, leveraging ${techStack.join(' and ')} to build scalable backends and animated pixel-perfect frontends. Passionate about optimization, clean code principles, and DevOps integrations.`,
-    `DevOps-focused Full-Stack Engineer and active open-source author. Technical architect of multiple public repositories utilizing ${frameworks.join(', ')}. Expert in containerization, clean architecture, and rapid deployment cycles.`
+    `Result-oriented Full Stack Engineer with a strong background in DevOps, Cloud computing, and production-ready engineering. Demonstrates proven capability in designing scalable backend architectures and modern frontend layouts using ${primaryLang} and modern frameworks like ${frameworks.slice(0, 4).join(', ')}. Adept at accelerating software delivery through automated CI/CD pipelines, containerization (Docker, Kubernetes), and Infrastructure as Code (Terraform) to achieve reliable cloud deployments.`,
+    `Highly proficient Full Stack Developer specializing in clean code standards, scalable API development, and modern client-side architectures. Experienced in building responsive interfaces with ${frameworks.slice(0, 3).join(', ')} and orchestrating automated containerized architectures. Focuses on performance optimization, comprehensive testing setups, and proactive collaboration to build production-ready applications.`,
+    `DevOps-focused Full-Stack Engineer and active open-source contributor. Technical architect of multiple high-quality repositories utilizing ${primaryLang} and ${frameworks.slice(0, 3).join(', ')}. Experienced in implementing automated CI/CD release pipelines, cloud infrastructure provisioning, and robust database setups, driven by a commitment to clean code and continuous learning.`
   ];
   const summary = summaries[Math.floor(Math.random() * summaries.length)];
 
