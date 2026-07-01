@@ -224,6 +224,16 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
 
   // Technical Achievements editing states
   const [achievements, setAchievements] = useState<any[]>(resume.achievements || []);
+  const [showAchievements, setShowAchievements] = useState<boolean>(resume.showAchievements !== false);
+
+  // Education editing states
+  const [education, setEducation] = useState<any>(() => {
+    return resume.education || {
+      tenth: { schoolName: '', year: '', marks: '' },
+      twelfth: { schoolName: '', year: '', marks: '' },
+      college: { collegeName: '', degree: '', year: '', marks: '' }
+    };
+  });
 
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [improvingSection, setImprovingSection] = useState<string | null>(null);
@@ -268,6 +278,8 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
         experience: experiences,
         projects,
         achievements,
+        showAchievements,
+        education,
         atsScore: Math.min(98, 85 + (skillsArray.length > 5 ? 5 : 0) + (experiences.length > 0 ? 5 : 0))
       };
 
@@ -403,6 +415,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
               { id: 'details', name: 'Profile Details' },
               { id: 'experience', name: 'Professional History' },
               { id: 'projects', name: 'Featured Projects' },
+              { id: 'education', name: 'Education' },
               { id: 'achievements', name: 'Achievements' }
             ].map(tab => (
               <button
@@ -716,21 +729,200 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
             </div>
           )}
 
+          {/* TAB: EDUCATION */}
+          {activeTab === 'education' && (
+            <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-6 animate-fadeIn">
+              <div className="border-b border-[#1F3A5F]/5 pb-3">
+                <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider">Education Details</h4>
+              </div>
+
+              {/* 10th Standard */}
+              <div className="p-5 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 space-y-4 text-left">
+                <h5 className="text-xs font-extrabold text-[#1F3A5F]">10th Standard (High School)</h5>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">School Name</label>
+                    <input 
+                      type="text"
+                      value={education.tenth?.schoolName || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        tenth: { ...education.tenth, schoolName: e.target.value }
+                      })}
+                      placeholder="e.g. St. Xavier's High School"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Passing Year</label>
+                    <input 
+                      type="text"
+                      value={education.tenth?.year || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        tenth: { ...education.tenth, year: e.target.value }
+                      })}
+                      placeholder="e.g. 2020"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Marks / Percentage</label>
+                    <input 
+                      type="text"
+                      value={education.tenth?.marks || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        tenth: { ...education.tenth, marks: e.target.value }
+                      })}
+                      placeholder="e.g. 92% or 9.5 CGPA"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 12th Standard */}
+              <div className="p-5 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 space-y-4 text-left">
+                <h5 className="text-xs font-extrabold text-[#1F3A5F]">12th Standard (Higher Secondary)</h5>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">School / College Name</label>
+                    <input 
+                      type="text"
+                      value={education.twelfth?.schoolName || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        twelfth: { ...education.twelfth, schoolName: e.target.value }
+                      })}
+                      placeholder="e.g. DAV Public School"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Passing Year</label>
+                    <input 
+                      type="text"
+                      value={education.twelfth?.year || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        twelfth: { ...education.twelfth, year: e.target.value }
+                      })}
+                      placeholder="e.g. 2022"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Marks / Percentage</label>
+                    <input 
+                      type="text"
+                      value={education.twelfth?.marks || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        twelfth: { ...education.twelfth, marks: e.target.value }
+                      })}
+                      placeholder="e.g. 89% or 8.8 CGPA"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* College / University */}
+              <div className="p-5 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 space-y-4 text-left">
+                <h5 className="text-xs font-extrabold text-[#1F3A5F]">College / University</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">College Name</label>
+                    <input 
+                      type="text"
+                      value={education.college?.collegeName || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        college: { ...education.college, collegeName: e.target.value }
+                      })}
+                      placeholder="e.g. IIT Delhi"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Degree / Course</label>
+                    <input 
+                      type="text"
+                      value={education.college?.degree || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        college: { ...education.college, degree: e.target.value }
+                      })}
+                      placeholder="e.g. B.Tech in Computer Science"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Graduation Year</label>
+                    <input 
+                      type="text"
+                      value={education.college?.year || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        college: { ...education.college, year: e.target.value }
+                      })}
+                      placeholder="e.g. 2026"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Marks / CGPA</label>
+                    <input 
+                      type="text"
+                      value={education.college?.marks || ''}
+                      onChange={(e) => setEducation({
+                        ...education,
+                        college: { ...education.college, marks: e.target.value }
+                      })}
+                      placeholder="e.g. 9.1 CGPA"
+                      className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB: ACHIEVEMENTS */}
           {activeTab === 'achievements' && (
             <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-6 animate-fadeIn">
               <div className="flex items-center justify-between border-b border-[#1F3A5F]/5 pb-3">
-                <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider">Technical Achievements</h4>
-                <button 
-                  onClick={addAchievement}
-                  className="text-xs font-bold text-[#1F6F5F] hover:text-[#1F6F5F]/80 flex items-center space-x-1"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Add Achievement</span>
-                </button>
+                <div className="flex items-center space-x-4">
+                  <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider">Technical Achievements</h4>
+                  <label className="flex items-center space-x-2 cursor-pointer select-none">
+                    <input 
+                      type="checkbox"
+                      checked={showAchievements}
+                      onChange={(e) => setShowAchievements(e.target.checked)}
+                      className="rounded border-[#1F3A5F]/20 text-[#1F6F5F] focus:ring-[#1F6F5F] h-4 w-4"
+                    />
+                    <span className="text-xs font-bold text-slate-500">Include in Resume</span>
+                  </label>
+                </div>
+                {showAchievements && (
+                  <button 
+                    onClick={addAchievement}
+                    className="text-xs font-bold text-[#1F6F5F] hover:text-[#1F6F5F]/80 flex items-center space-x-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Achievement</span>
+                  </button>
+                )}
               </div>
 
-              {achievements.length === 0 ? (
+              {!showAchievements ? (
+                <div className="text-center py-8 text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  🚫 Achievements section is disabled. It will not be shown in your exported resume.
+                </div>
+              ) : achievements.length === 0 ? (
                 <div className="text-center py-8 text-slate-400 text-xs">
                   No achievements listed. Click "Add Achievement" to begin.
                 </div>
