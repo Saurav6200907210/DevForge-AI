@@ -17,6 +17,55 @@ import {
 } from 'lucide-react';
 import { api } from '../api';
 
+const generateTailoredBullets = (role: string, company: string): string[] => {
+  const roleLower = role.toLowerCase();
+  const comp = company || 'the company';
+  
+  const bullets: string[] = [];
+
+  // Bullet 1: Core functionality based on role
+  if (roleLower.includes('back') || roleLower.includes('api') || roleLower.includes('server') || roleLower.includes('django') || roleLower.includes('node') || roleLower.includes('nest') || roleLower.includes('golang') || roleLower.includes('go ')) {
+    bullets.push(`Architected and implemented high-performance RESTful APIs and server-side logic at ${comp}, utilizing clean architecture and modular routing.`);
+  } else if (roleLower.includes('front') || roleLower.includes('ui') || roleLower.includes('react') || roleLower.includes('next') || roleLower.includes('vue') || roleLower.includes('client') || roleLower.includes('design') || roleLower.includes('web')) {
+    bullets.push(`Developed responsive client-side user interfaces and state management systems at ${comp}, utilizing modern component-driven patterns for page speed optimization.`);
+  } else if (roleLower.includes('devops') || roleLower.includes('cloud') || roleLower.includes('sys') || roleLower.includes('aws') || roleLower.includes('infra') || roleLower.includes('docker') || roleLower.includes('k8s') || roleLower.includes('jenkins') || roleLower.includes('cicd') || roleLower.includes('ci/cd')) {
+    bullets.push(`Designed and orchestrated secure containerized workflows and automated deployment pipelines at ${comp}, reducing pipeline run boundaries and server configuration friction.`);
+  } else if (roleLower.includes('android') || roleLower.includes('ios') || roleLower.includes('mobile') || roleLower.includes('flutter') || roleLower.includes('native')) {
+    bullets.push(`Built and optimized high-performance mobile application modules at ${comp}, integrating native APIs and local data persistence mechanisms for fluid user experiences.`);
+  } else if (roleLower.includes('intern') || roleLower.includes('trainee') || roleLower.includes('junior')) {
+    bullets.push(`Contributed directly to core application features at ${comp} during the internship, writing clean modular code and gaining practical experience in production-grade environments.`);
+  } else {
+    bullets.push(`Designed and deployed scalable software features at ${comp}, leveraging core engineering patterns to improve product quality and codebase maintainability.`);
+  }
+
+  // Bullet 2: Specific stack details or optimization
+  if (roleLower.includes('data') || roleLower.includes('db') || roleLower.includes('sql') || roleLower.includes('mongo') || roleLower.includes('redis') || roleLower.includes('postgres') || roleLower.includes('mysql')) {
+    bullets.push(`Normalized database schemas and optimized SQL/NoSQL queries, integrating caching mechanisms to decrease database latency under peak load times.`);
+  } else if (roleLower.includes('front') || roleLower.includes('ui') || roleLower.includes('ux') || roleLower.includes('design') || roleLower.includes('web')) {
+    bullets.push(`Transformed wireframes and design mockups into pixel-perfect web elements, ensuring cross-browser compatibility and optimized client asset size.`);
+  } else if (roleLower.includes('devops') || roleLower.includes('cloud') || roleLower.includes('infra')) {
+    bullets.push(`Configured cloud resource monitoring and log visualization dashboards, monitoring system metrics to preemptively identify infrastructure bottlenecks.`);
+  } else {
+    bullets.push(`Optimized application throughput and database querying speeds by implementing structured caching mechanisms and refactoring legacy code paths.`);
+  }
+
+  // Bullet 3: Quality assurance / testing / DevOps automation
+  if (roleLower.includes('devops') || roleLower.includes('infra') || roleLower.includes('ci') || roleLower.includes('cd')) {
+    bullets.push(`Built multi-stage deployment workflows and automated verification testing suites, achieving zero-downtime rolling updates in production.`);
+  } else {
+    bullets.push(`Authored comprehensive unit and integration testing suites, achieving increased code coverage and ensuring build stability across releases.`);
+  }
+
+  // Bullet 4: Professional collaboration / learning / Agile delivery
+  if (roleLower.includes('intern') || roleLower.includes('trainee') || roleLower.includes('junior') || roleLower.includes('student')) {
+    bullets.push(`Collaborated actively with cross-functional development teams, participating in Agile sprints, code reviews, and technical documentation audits.`);
+  } else {
+    bullets.push(`Collaborated with senior architects and product managers to translate complex specifications into modular, scalable, and well-documented technical deliverables.`);
+  }
+
+  return bullets;
+};
+
 interface ResumeEditorProps {
   profile: any;
   onUpdateProfile: (updatedProfile: any) => void;
@@ -129,9 +178,16 @@ export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorP
   };
 
   const addExperience = () => {
+    const defaultCompany = 'New Company';
+    const defaultRole = 'Software Engineer Intern';
     setExperiences([
       ...experiences,
-      { company: 'New Company', role: 'Software Engineer', duration: '2026 - Present', bullets: ['Built custom database query hooks mapping high throughput metrics.'] }
+      { 
+        company: defaultCompany, 
+        role: defaultRole, 
+        duration: '2026 - Present', 
+        bullets: generateTailoredBullets(defaultRole, defaultCompany)
+      }
     ]);
   };
 
@@ -325,6 +381,72 @@ export default function ResumeEditor({ profile, onUpdateProfile }: ResumeEditorP
                         onChange={(e) => updateExperience(idx, 'duration', e.target.value)}
                         className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
                       />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 border-t border-slate-100 pt-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-bold text-[#1F3A5F] uppercase tracking-wider">Experience Bullet Points</label>
+                    <div className="flex items-center space-x-3">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const updated = [...experiences];
+                          updated[idx].bullets = generateTailoredBullets(exp.role || '', exp.company || '');
+                          setExperiences(updated);
+                        }}
+                        className="text-[10px] font-bold text-[#1F6F5F] hover:text-[#1F6F5F]/80 flex items-center space-x-1"
+                        title="Generate 3-4 professional, ATS-optimized bullet points based on Role/Title and Company"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                        <span>✨ Auto-Generate ATS Bullets</span>
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const updated = [...experiences];
+                          updated[idx].bullets = [...(updated[idx].bullets || []), ''];
+                          setExperiences(updated);
+                        }}
+                        className="text-[10px] font-bold text-slate-500 hover:text-slate-600 flex items-center space-x-1"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Add Bullet</span>
+                      </button>
+                    </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {(exp.bullets || []).map((bullet: string, bIdx: number) => (
+                        <div key={bIdx} className="flex items-center space-x-2">
+                          <span className="text-slate-400 text-xs">•</span>
+                          <input 
+                            type="text"
+                            value={bullet}
+                            onChange={(e) => {
+                              const updated = [...experiences];
+                              updated[idx].bullets[bIdx] = e.target.value;
+                              setExperiences(updated);
+                            }}
+                            placeholder="Describe what you did or learned (e.g. Developed scalable REST APIs using Express.js)"
+                            className="flex-1 bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                          />
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const updated = [...experiences];
+                              updated[idx].bullets = updated[idx].bullets.filter((_, bi) => bi !== bIdx);
+                              setExperiences(updated);
+                            }}
+                            className="text-red-500 hover:text-red-600 p-1.5 bg-red-50 border border-red-200 rounded-lg shrink-0"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                      {(exp.bullets || []).length === 0 && (
+                        <div className="text-[11px] text-slate-400 italic">No bullets added yet. Click "Add Bullet" to add.</div>
+                      )}
                     </div>
                   </div>
                 </div>
