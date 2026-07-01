@@ -158,12 +158,24 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
     achievements: []
   };
 
-  const [activeTab, setActiveTab] = useState<'details' | 'experience' | 'projects' | 'achievements'>('details');
-  const [selectedTemplate, setSelectedTemplate] = useState(resume.template || 'emerald');
+  const [activeTab, setActiveTab] = useState<'details' | 'experience' | 'projects' | 'education' | 'achievements'>('details');
+  const [selectedTemplate, setSelectedTemplate] = useState(() => {
+    const t = resume.template || 'modern_ats';
+    if (t === 'emerald') return 'modern_ats';
+    return t;
+  });
   
   // Form editing states
   const [summary, setSummary] = useState(resume.summary || '');
   const [skillsString, setSkillsString] = useState(resume.skills?.join(', ') || '');
+
+  // Contact details editing states
+  const [fullName, setFullName] = useState(profile.fullName || '');
+  const [email, setEmail] = useState(profile.email || '');
+  const [phone, setPhone] = useState(profile.phone || '');
+  const [location, setLocation] = useState(profile.location || '');
+  const [githubUsername, setGithubUsername] = useState(profile.githubUsername || '');
+  const [linkedinUrl, setLinkedinUrl] = useState(resume.linkedinUrl || profile.linkedinUrl || '');
   
   // Experience editing states
   const [experiences, setExperiences] = useState<any[]>(resume.experience || [
@@ -239,6 +251,490 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
   const [improvingSection, setImprovingSection] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Template render helpers
+  const renderModernAts = () => {
+    return (
+      <div className="space-y-3.5 font-sans text-[10px] text-slate-800 leading-normal">
+        {/* Header */}
+        <div className="text-center space-y-1 border-b pb-2 border-slate-100">
+          <h1 className="text-lg font-bold uppercase tracking-tight text-[#1F3A5F]">{fullName}</h1>
+          <div className="flex flex-wrap justify-center gap-x-2 text-[8px] text-slate-500">
+            <span>{email}</span>
+            <span>•</span>
+            <span>{phone || '+91 XXXXX XXXXX'}</span>
+            <span>•</span>
+            <span>{location}</span>
+            {githubUsername && (
+              <>
+                <span>•</span>
+                <span className="font-semibold text-[#1F6F5F]">github.com/{githubUsername}</span>
+              </>
+            )}
+            {linkedinUrl && (
+              <>
+                <span>•</span>
+                <span className="font-semibold text-blue-600">linkedin.com/in/{linkedinUrl.split('/').pop()}</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Summary */}
+        {summary && (
+          <div className="space-y-0.5 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Professional Summary</h2>
+            <p className="text-slate-600 text-justify leading-relaxed">{summary}</p>
+          </div>
+        )}
+
+        {/* Skills */}
+        {skillsString && (
+          <div className="space-y-0.5 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Technical Skills</h2>
+            <p className="text-slate-600 leading-relaxed"><strong className="text-slate-700">Technologies: </strong>{skillsString}</p>
+          </div>
+        )}
+
+        {/* Experience */}
+        {experiences.length > 0 && (
+          <div className="space-y-1 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Professional Experience</h2>
+            <div className="space-y-2">
+              {experiences.map((exp, idx) => (
+                <div key={idx} className="space-y-0.5">
+                  <div className="flex justify-between items-baseline font-bold text-slate-700">
+                    <span>{exp.role} <span className="font-normal text-slate-400">|</span> {exp.company}</span>
+                    <span className="text-[8px] text-slate-500 font-normal">{exp.duration}</span>
+                  </div>
+                  <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                    {(exp.bullets || []).map((bullet: string, bIdx: number) => (
+                      <li key={bIdx}>{bullet}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Projects */}
+        {projects.length > 0 && (
+          <div className="space-y-1 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Featured Projects</h2>
+            <div className="space-y-2">
+              {projects.map((proj, idx) => (
+                <div key={idx} className="space-y-0.5">
+                  <div className="flex justify-between items-baseline font-bold text-slate-700">
+                    <div className="flex items-center space-x-1.5 flex-wrap">
+                      <span className="font-extrabold">{proj.name}</span>
+                      {proj.githubUrl && (
+                        <span className="text-[8px] font-normal text-slate-400">({proj.githubUrl.replace('https://', '')})</span>
+                      )}
+                      {proj.homepageUrl && (
+                        <span className="text-[8px] font-normal text-[#1F6F5F]">({proj.homepageUrl})</span>
+                      )}
+                    </div>
+                    <span className="text-[8px] text-slate-500 font-normal">★ {proj.stars || 0} stars</span>
+                  </div>
+                  <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                    {(proj.bullets || []).map((bullet: string, bIdx: number) => (
+                      <li key={bIdx}>{bullet}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Education */}
+        {((education.tenth?.schoolName) || (education.twelfth?.schoolName) || (education.college?.collegeName)) && (
+          <div className="space-y-1 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Education</h2>
+            <div className="space-y-1.5">
+              {education.college?.collegeName && (
+                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                  <span>{education.college.degree} <span className="font-normal text-slate-400">|</span> {education.college.collegeName}</span>
+                  <span className="text-[8px] text-slate-500 font-normal">{education.college.year} ({education.college.marks})</span>
+                </div>
+              )}
+              {education.twelfth?.schoolName && (
+                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                  <span>12th Standard <span className="font-normal text-slate-400">|</span> {education.twelfth.schoolName}</span>
+                  <span className="text-[8px] text-slate-500 font-normal">{education.twelfth.year} ({education.twelfth.marks})</span>
+                </div>
+              )}
+              {education.tenth?.schoolName && (
+                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                  <span>10th Standard <span className="font-normal text-slate-400">|</span> {education.tenth.schoolName}</span>
+                  <span className="text-[8px] text-slate-500 font-normal">{education.tenth.year} ({education.tenth.marks})</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Achievements */}
+        {showAchievements && achievements.length > 0 && (
+          <div className="space-y-1 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Achievements & Certifications</h2>
+            <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+              {achievements.map((ach, idx) => (
+                <li key={idx}>{ach}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderExecutive = () => {
+    return (
+      <div className="grid grid-cols-12 gap-4 font-sans text-[10px] text-slate-800 leading-normal">
+        {/* Left Sidebar (col-span-4) */}
+        <div className="col-span-4 bg-slate-50/70 p-2.5 rounded-xl border border-slate-100 space-y-4 text-left">
+          {/* Contact Info */}
+          <div className="space-y-1.5">
+            <h3 className="text-[10px] font-extrabold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wider">Contact</h3>
+            <div className="space-y-1.5 text-[8.5px] text-slate-600 break-all">
+              <div>
+                <strong className="block text-slate-700">Email</strong>
+                <span>{email}</span>
+              </div>
+              <div>
+                <strong className="block text-slate-700">Phone</strong>
+                <span>{phone || '+91 XXXXX XXXXX'}</span>
+              </div>
+              <div>
+                <strong className="block text-slate-700">Location</strong>
+                <span>{location}</span>
+              </div>
+              {githubUsername && (
+                <div>
+                  <strong className="block text-slate-700">GitHub</strong>
+                  <span className="text-[#1F6F5F]">github.com/{githubUsername}</span>
+                </div>
+              )}
+              {linkedinUrl && (
+                <div>
+                  <strong className="block text-slate-700">LinkedIn</strong>
+                  <span className="text-blue-600">linkedin.com/in/{linkedinUrl.split('/').pop()}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Skills */}
+          {skillsString && (
+            <div className="space-y-1.5">
+              <h3 className="text-[10px] font-extrabold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wider">Core Skills</h3>
+              <div className="flex flex-wrap gap-1 pt-1">
+                {skillsString.split(',').map((skill, sIdx) => (
+                  <span key={sIdx} className="bg-white border border-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[7.5px] font-medium">
+                    {skill.trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Education */}
+          {((education.tenth?.schoolName) || (education.twelfth?.schoolName) || (education.college?.collegeName)) && (
+            <div className="space-y-1.5">
+              <h3 className="text-[10px] font-extrabold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wider">Education</h3>
+              <div className="space-y-2 text-[8.5px] text-slate-600">
+                {education.college?.collegeName && (
+                  <div>
+                    <strong className="block text-slate-700">{education.college.degree}</strong>
+                    <span>{education.college.collegeName}</span>
+                    <span className="block text-[8px] text-slate-400">{education.college.year} | {education.college.marks}</span>
+                  </div>
+                )}
+                {education.twelfth?.schoolName && (
+                  <div>
+                    <strong className="block text-slate-700">Higher Secondary</strong>
+                    <span>{education.twelfth.schoolName}</span>
+                    <span className="block text-[8px] text-slate-400">{education.twelfth.year} | {education.twelfth.marks}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column (col-span-8) */}
+        <div className="col-span-8 space-y-3 text-left">
+          {/* Name and Title */}
+          <div className="space-y-1 border-b pb-2 border-slate-100">
+            <h1 className="text-xl font-bold uppercase tracking-tight text-[#1F3A5F]">{fullName}</h1>
+            <span className="text-[9px] font-bold text-[#C8A96A] uppercase tracking-widest">{profile.developerLevel || 'Software Engineer'}</span>
+          </div>
+
+          {/* Summary */}
+          {summary && (
+            <div className="space-y-0.5">
+              <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Executive Summary</h2>
+              <p className="text-slate-600 text-justify leading-relaxed">{summary}</p>
+            </div>
+          )}
+
+          {/* Experience */}
+          {experiences.length > 0 && (
+            <div className="space-y-1.5">
+              <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Professional Experience</h2>
+              <div className="space-y-2">
+                {experiences.map((exp, idx) => (
+                  <div key={idx} className="space-y-0.5">
+                    <div className="flex justify-between items-baseline font-bold text-slate-700 font-sans">
+                      <span>{exp.role} <span className="font-normal text-slate-400">at</span> {exp.company}</span>
+                      <span className="text-[8px] text-slate-500 font-normal">{exp.duration}</span>
+                    </div>
+                    <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                      {(exp.bullets || []).map((bullet: string, bIdx: number) => (
+                        <li key={bIdx}>{bullet}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Projects */}
+          {projects.length > 0 && (
+            <div className="space-y-1.5">
+              <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Key Projects</h2>
+              <div className="space-y-2">
+                {projects.map((proj, idx) => (
+                  <div key={idx} className="space-y-0.5">
+                    <div className="flex justify-between items-baseline font-bold text-slate-700">
+                      <span>{proj.name}</span>
+                      <span className="text-[8px] text-slate-500 font-normal">★ {proj.stars || 0} stars</span>
+                    </div>
+                    <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                      {(proj.bullets || []).map((bullet: string, bIdx: number) => (
+                        <li key={bIdx}>{bullet}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Achievements */}
+          {showAchievements && achievements.length > 0 && (
+            <div className="space-y-1">
+              <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Technical Accomplishments</h2>
+              <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                {achievements.map((ach, idx) => (
+                  <li key={idx}>{ach}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderProductEngineer = () => {
+    return (
+      <div className="space-y-3.5 font-sans text-[10px] text-slate-800 leading-normal">
+        {/* Header */}
+        <div className="flex justify-between items-start border-b pb-2 border-slate-100">
+          <div className="space-y-0.5 text-left">
+            <h1 className="text-lg font-bold tracking-tight text-[#1F3A5F]">{fullName}</h1>
+            <p className="text-[8.5px] font-bold text-[#1F6F5F] uppercase tracking-wider">{profile.developerLevel || 'Product Engineer'}</p>
+          </div>
+          <div className="text-right text-[8px] text-slate-500 space-y-0.5">
+            <div>{email} | {phone || '+91 XXXXX XXXXX'}</div>
+            <div>{location}</div>
+            <div className="font-semibold text-slate-700">
+              {githubUsername && `github.com/${githubUsername}`}
+              {linkedinUrl && ` | linkedin.com/in/${linkedinUrl.split('/').pop()}`}
+            </div>
+          </div>
+        </div>
+
+        {/* Summary */}
+        {summary && (
+          <div className="space-y-0.5 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-[#1F3A5F]/10 pb-0.5 uppercase tracking-wide">Profile Summary</h2>
+            <p className="text-slate-600 leading-relaxed">{summary}</p>
+          </div>
+        )}
+
+        {/* Core Technical Skills */}
+        {skillsString && (
+          <div className="space-y-0.5 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-[#1F3A5F]/10 pb-0.5 uppercase tracking-wide">Core Technical Skills</h2>
+            <p className="text-slate-600 leading-relaxed">{skillsString}</p>
+          </div>
+        )}
+
+        {/* Featured Projects - POSITIONED HIGHER UP! */}
+        {projects.length > 0 && (
+          <div className="space-y-2 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-[#1F3A5F]/10 pb-0.5 uppercase tracking-wide">Featured Engineering Projects</h2>
+            <div className="grid grid-cols-1 gap-2">
+              {projects.map((proj, idx) => (
+                <div key={idx} className="space-y-0.5 border border-slate-100 p-2 rounded-lg bg-slate-50/30">
+                  <div className="flex justify-between items-baseline font-bold text-slate-700">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[#1F3A5F] font-extrabold">{proj.name}</span>
+                      {proj.githubUrl && (
+                        <span className="text-[8px] font-normal text-blue-600">[Code]</span>
+                      )}
+                      {proj.homepageUrl && (
+                        <span className="text-[8px] font-normal text-[#1F6F5F]">[Live]</span>
+                      )}
+                    </div>
+                    <span className="text-[7.5px] text-slate-400 font-normal">★ {proj.stars || 0} stars</span>
+                  </div>
+                  <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                    {(proj.bullets || []).map((bullet: string, bIdx: number) => (
+                      <li key={bIdx}>{bullet}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Experience */}
+        {experiences.length > 0 && (
+          <div className="space-y-1.5 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-[#1F3A5F]/10 pb-0.5 uppercase tracking-wide">Work History & Internships</h2>
+            <div className="space-y-1.5">
+              {experiences.map((exp, idx) => (
+                <div key={idx} className="space-y-0.5">
+                  <div className="flex justify-between items-baseline font-bold text-slate-700">
+                    <span>{exp.role} at {exp.company}</span>
+                    <span className="text-[8px] text-slate-500 font-normal">{exp.duration}</span>
+                  </div>
+                  <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                    {(exp.bullets || []).map((bullet: string, bIdx: number) => (
+                      <li key={bIdx}>{bullet}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Education */}
+        {((education.tenth?.schoolName) || (education.twelfth?.schoolName) || (education.college?.collegeName)) && (
+          <div className="space-y-1.5 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-[#1F3A5F]/10 pb-0.5 uppercase tracking-wide">Academic Credentials</h2>
+            <div className="space-y-1">
+              {education.college?.collegeName && (
+                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                  <span>{education.college.degree} | {education.college.collegeName}</span>
+                  <span className="text-[8px] text-slate-500 font-normal">{education.college.year} ({education.college.marks})</span>
+                </div>
+              )}
+              {education.twelfth?.schoolName && (
+                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                  <span>Higher Secondary Schooling | {education.twelfth.schoolName}</span>
+                  <span className="text-[8px] text-slate-500 font-normal">{education.twelfth.year} ({education.twelfth.marks})</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Achievements */}
+        {showAchievements && achievements.length > 0 && (
+          <div className="space-y-1 text-left">
+            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-[#1F3A5F]/10 pb-0.5 uppercase tracking-wide">Engineering Achievements</h2>
+            <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+              {achievements.map((ach, idx) => (
+                <li key={idx}>{ach}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const templatesList = [
+    {
+      id: 'modern_ats',
+      name: 'Modern ATS',
+      score: '100/100',
+      bestFor: 'Amazon • Microsoft • Google',
+      recommended: true,
+      layoutPreview: (
+        <div className="w-full h-16 bg-slate-50 border border-slate-200 rounded-lg p-1.5 space-y-1 overflow-hidden flex flex-col justify-between">
+          <div className="h-1.5 w-1/3 bg-blue-500 rounded"></div>
+          <div className="space-y-0.5">
+            <div className="h-0.5 bg-slate-300 rounded w-full"></div>
+            <div className="h-0.5 bg-slate-300 rounded w-5/6"></div>
+          </div>
+          <div className="space-y-0.5">
+            <div className="h-0.5 bg-slate-300 rounded w-4/5"></div>
+            <div className="h-0.5 bg-slate-300 rounded w-full"></div>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'executive',
+      name: 'Professional Executive',
+      score: '98/100',
+      bestFor: 'Service & Product Co.',
+      recommended: false,
+      layoutPreview: (
+        <div className="w-full h-16 bg-slate-50 border border-slate-200 rounded-lg p-1 overflow-hidden flex space-x-1">
+          <div className="w-1/3 bg-[#1F3A5F]/10 rounded p-0.5 space-y-1">
+            <div className="h-1 bg-[#1F3A5F]/30 rounded w-full"></div>
+            <div className="h-0.5 bg-slate-300 rounded w-5/6"></div>
+            <div className="h-0.5 bg-slate-300 rounded w-4/6"></div>
+          </div>
+          <div className="w-2/3 space-y-1 flex flex-col justify-between py-0.5">
+            <div className="h-1 bg-blue-400 rounded w-1/2"></div>
+            <div className="space-y-0.5">
+              <div className="h-0.5 bg-slate-300 rounded w-full"></div>
+              <div className="h-0.5 bg-slate-300 rounded w-5/6"></div>
+            </div>
+            <div className="space-y-0.5">
+              <div className="h-0.5 bg-slate-300 rounded w-full"></div>
+              <div className="h-0.5 bg-slate-300 rounded w-4/6"></div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'product_engineer',
+      name: 'Product Engineer',
+      score: '100/100',
+      bestFor: 'Full-Stack Developers',
+      recommended: false,
+      layoutPreview: (
+        <div className="w-full h-16 bg-slate-50 border border-slate-200 rounded-lg p-1.5 space-y-1 overflow-hidden flex flex-col justify-between">
+          <div className="flex justify-between items-center">
+            <div className="h-1.5 w-1/4 bg-blue-500 rounded"></div>
+            <div className="h-1 w-1/5 bg-slate-300 rounded"></div>
+          </div>
+          <div className="border border-blue-500/20 rounded p-0.5 space-y-0.5">
+            <div className="h-0.5 bg-blue-500/30 rounded w-1/2"></div>
+            <div className="h-0.5 bg-slate-300 rounded w-full"></div>
+          </div>
+          <div className="space-y-0.5">
+            <div className="h-0.5 bg-slate-300 rounded w-full"></div>
+            <div className="h-0.5 bg-slate-300 rounded w-5/6"></div>
+          </div>
+        </div>
+      )
+    }
+  ];
+
   // Trigger Local AI optimization for sections
   const handleAiImprove = async (section: string) => {
     try {
@@ -280,6 +776,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
         achievements,
         showAchievements,
         education,
+        linkedinUrl,
         atsScore: Math.min(98, 85 + (skillsArray.length > 5 ? 5 : 0) + (experiences.length > 0 ? 5 : 0))
       };
 
@@ -287,6 +784,12 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
       if (res.success) {
         onUpdateProfile({ 
           ...profile, 
+          fullName,
+          email,
+          phone,
+          location,
+          githubUsername,
+          linkedinUrl,
           resume: res.resume,
           analysis: {
             ...profile.analysis,
@@ -363,6 +866,33 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto w-full text-[#2B2B2B] pb-16 text-left">
+      <style>{`
+        @media print {
+          /* Hide all UI elements except the printable resume sheet */
+          body * {
+            visibility: hidden;
+            background: white !important;
+          }
+          .printable-resume, .printable-resume * {
+            visibility: visible;
+          }
+          .printable-resume {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+          /* Custom page borders */
+          @page {
+            margin: 1.5cm 1.2cm 1.5cm 1.2cm;
+          }
+        }
+      `}</style>
       
       {/* Upper action control banner */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#1F3A5F]/5 pb-5">
@@ -407,7 +937,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Side: Parameters Form Editor */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-6 space-y-6">
           
           {/* Tabs header bar */}
           <div className="flex border-b border-[#1F3A5F]/5 text-xs font-bold bg-white/50 p-1 rounded-xl border">
@@ -435,6 +965,75 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
           {/* TAB: DETAILS */}
           {activeTab === 'details' && (
             <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-6 animate-fadeIn">
+              
+              <div className="border-b border-[#1F3A5F]/5 pb-3">
+                <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider">Contact Information</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</label>
+                  <input 
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</label>
+                  <input 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone Number</label>
+                  <input 
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Location</label>
+                  <input 
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">GitHub Username</label>
+                  <input 
+                    type="text"
+                    value={githubUsername}
+                    onChange={(e) => setGithubUsername(e.target.value)}
+                    className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">LinkedIn URL</label>
+                <input 
+                  type="text"
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                  placeholder="https://linkedin.com/in/username"
+                  className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                />
+              </div>
+
+              <div className="border-t border-[#1F3A5F]/5 pt-4"></div>
+
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider">Professional Summary</label>
                 <textarea
@@ -949,13 +1548,8 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
             </div>
           )}
 
-        </div>
-
-        {/* Right Side: AI Assistant Panel */}
-        <div className="lg:col-span-4 space-y-6">
-          
           {/* AI Optimise Card */}
-          <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-4 mt-6 no-print">
             <div className="flex items-center space-x-2 text-[#1F3A5F]">
               <Sparkles className="h-5 w-5 text-[#C8A96A]" />
               <h4 className="font-bold text-sm">AI Resume Optimizer</h4>
@@ -967,6 +1561,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
 
             <div className="flex flex-col space-y-2">
               <button
+                type="button"
                 onClick={() => handleAiImprove('summary')}
                 disabled={improvingSection !== null}
                 className="w-full py-2.5 px-4 bg-[#1F3A5F]/5 hover:bg-[#1F3A5F]/10 text-[#1F3A5F] rounded-xl text-xs font-bold transition-all border border-[#1F3A5F]/10 flex items-center justify-center space-x-1.5"
@@ -985,7 +1580,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
 
           {/* AI Suggestions Results */}
           {aiSuggestions.length > 0 && (
-            <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-4 animate-fadeIn">
+            <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-6 shadow-sm space-y-4 animate-fadeIn mt-6 no-print">
               <h5 className="text-xs font-bold text-[#1F6F5F] uppercase tracking-wider flex items-center space-x-1.5">
                 <Check className="h-4 w-4" />
                 <span>Optimisation Recommendations</span>
@@ -1000,6 +1595,77 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
               </ul>
             </div>
           )}
+
+        </div>
+
+        {/* Right Column: Template Selector & Live Resume Preview */}
+        <div className="lg:col-span-6 space-y-6 lg:sticky lg:top-6">
+          
+          {/* Template Selector Section */}
+          <div className="bg-white/70 border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-4 no-print">
+            <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-wider border-b border-slate-100 pb-2">Choose Resume Template</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {templatesList.map(tpl => {
+                const isSelected = selectedTemplate === tpl.id;
+                return (
+                  <button
+                    key={tpl.id}
+                    onClick={() => setSelectedTemplate(tpl.id)}
+                    type="button"
+                    className={`flex flex-col text-left border rounded-xl p-3 transition-all relative group overflow-hidden ${
+                      isSelected 
+                        ? 'border-[#1F6F5F] bg-[#1F6F5F]/5 shadow-sm ring-1 ring-[#1F6F5F]' 
+                        : 'border-[#1F3A5F]/10 bg-white hover:border-[#1F6F5F]/50 hover:bg-[#FAFAF8]/50'
+                    }`}
+                  >
+                    {/* Recommended badge */}
+                    {tpl.recommended && (
+                      <span className="absolute top-0 right-0 bg-[#C8A96A] text-white text-[7px] font-extrabold px-1.5 py-0.5 rounded-bl">
+                        RECOMMENDED
+                      </span>
+                    )}
+
+                    <div className="space-y-1.5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <span className="block text-[10px] font-extrabold text-[#1F3A5F] line-clamp-1">{tpl.name}</span>
+                        <span className="block text-[8px] text-[#1F6F5F] font-bold">ATS Score: {tpl.score}</span>
+                        <span className="block text-[7px] text-slate-400 line-clamp-1 mt-0.5">Best for: {tpl.bestFor}</span>
+                      </div>
+
+                      {/* Mini Layout Preview */}
+                      <div className="mt-2 w-full">
+                        {tpl.layoutPreview}
+                      </div>
+
+                      <div className={`text-[9px] font-extrabold mt-3 text-center py-1 rounded-lg border transition-all ${
+                        isSelected 
+                          ? 'bg-[#1F6F5F] text-white border-transparent' 
+                          : 'bg-slate-50 text-slate-500 border-slate-200 group-hover:bg-[#1F6F5F]/10 group-hover:text-[#1F6F5F] group-hover:border-[#1F6F5F]/20'
+                      }`}>
+                        {isSelected ? 'Active Template' : 'Use Template'}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Live Preview Paper Container */}
+          <div className="bg-slate-200/50 p-4 rounded-3xl border border-slate-300/40 shadow-inner flex justify-center overflow-x-auto no-print">
+            <div className="printable-resume bg-white text-slate-800 p-8 shadow-2xl border border-slate-100 rounded-2xl w-full min-w-[380px] max-w-[595px] min-h-[842px] print:w-full print:max-w-full print:min-h-0 print:shadow-none print:border-none print:p-0 print:m-0 print:rounded-none">
+              {selectedTemplate === 'modern_ats' && renderModernAts()}
+              {selectedTemplate === 'executive' && renderExecutive()}
+              {selectedTemplate === 'product_engineer' && renderProductEngineer()}
+            </div>
+          </div>
+
+          {/* Invisible print container that becomes visible during window.print() */}
+          <div className="hidden print:block printable-resume">
+            {selectedTemplate === 'modern_ats' && renderModernAts()}
+            {selectedTemplate === 'executive' && renderExecutive()}
+            {selectedTemplate === 'product_engineer' && renderProductEngineer()}
+          </div>
 
         </div>
 
