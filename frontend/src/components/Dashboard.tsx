@@ -10,7 +10,6 @@ import {
   Github, 
   Cpu, 
   ShieldCheck, 
-  Award, 
   Terminal, 
   Copy, 
   Check, 
@@ -19,7 +18,6 @@ import {
   TrendingUp,
   MessageSquare,
   Users,
-  GitPullRequest,
   GitBranch,
   Play,
   Settings,
@@ -51,7 +49,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ profile, onLogout, onUpdateProfile }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'repos' | 'opensource' | 'collaboration' | 'explorer' | 'timeline' | 'resume' | 'portfolio'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'repos' | 'explorer' | 'timeline' | 'resume' | 'portfolio'>('overview');
 
   // Explorer States
   const [searchQuery, setSearchQuery] = useState('');
@@ -153,25 +151,7 @@ export default function Dashboard({ profile, onLogout, onUpdateProfile }: Dashbo
               <span>Repository Analytics</span>
             </button>
 
-            <button 
-              onClick={() => setActiveTab('opensource')}
-              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
-                activeTab === 'opensource' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
-              }`}
-            >
-              <Award className="h-4 w-4" />
-              <span>Open Source & CI/CD</span>
-            </button>
 
-            <button 
-              onClick={() => setActiveTab('collaboration')}
-              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
-                activeTab === 'collaboration' ? 'bg-[#1F3A5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F3A5F]'
-              }`}
-            >
-              <GitPullRequest className="h-4 w-4" />
-              <span>Issue & PR Analytics</span>
-            </button>
 
             <button 
               onClick={() => setActiveTab('explorer')}
@@ -561,122 +541,6 @@ export default function Dashboard({ profile, onLogout, onUpdateProfile }: Dashbo
             </div>
           )}
 
-          {/* TAB: OPEN SOURCE & ACTIONS */}
-          {activeTab === 'opensource' && (
-            <div className="space-y-8 animate-fadeIn text-left">
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Public Stars</span>
-                  <span className="block text-3xl font-extrabold text-[#1F3A5F]">{profile.analysis?.metrics?.totalStars || 0}</span>
-                  <span className="text-[10px] text-slate-400">Across all repositories</span>
-                </div>
-                
-                <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Forks Managed</span>
-                  <span className="block text-3xl font-extrabold text-[#1F3A5F]">{profile.analysis?.metrics?.totalForks || 0}</span>
-                  <span className="text-[10px] text-slate-400">Collaboration quotient</span>
-                </div>
-
-                <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Watchers</span>
-                  <span className="block text-3xl font-extrabold text-[#1F3A5F]">{profile.analysis?.metrics?.totalWatchers || 0}</span>
-                  <span className="text-[10px] text-slate-400">Developer interest index</span>
-                </div>
-              </div>
-
-              {/* GitHub Actions */}
-              <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-4">
-                <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">CI/CD Orchestration Health</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-[#1F3A5F]">GitHub Actions Health</span>
-                      <span className="text-[#1F6F5F] font-bold">95% Success Rate</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#1F6F5F]" style={{ width: '95%' }}></div>
-                    </div>
-                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/60 space-y-2 text-xs">
-                      <div className="flex justify-between font-bold text-[#1F3A5F]">
-                        <span>Workflow Name</span>
-                        <span>Status</span>
-                      </div>
-                      <div className="flex justify-between text-slate-500">
-                        <span>ci-lint-test.yml</span>
-                        <span className="text-[#1F6F5F] font-bold">Passed</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-5 border border-[#1F3A5F]/5 rounded-2xl bg-[#FAFAF8]/50 flex flex-col justify-between">
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Average Build Time</span>
-                      <span className="block text-2xl font-extrabold text-[#1F3A5F]">42 Seconds</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
-                      Calculated from Docker multi-stage build layers cached inside GitHub Actions runner workflows.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* TAB: COLLABORATION (ISSUES & PRS) */}
-          {activeTab === 'collaboration' && (
-            <div className="space-y-8 animate-fadeIn text-left">
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Pull Requests */}
-                <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6">
-                  <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">Pull Request Metrics</h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PRs Created</span>
-                      <span className="block text-2xl font-extrabold text-[#1F3A5F]">{commitsInfo.prsCreated}</span>
-                    </div>
-                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">PRs Merged</span>
-                      <span className="block text-2xl font-extrabold text-[#1F6F5F]">{commitsInfo.prsMerged}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center text-xs border-t border-slate-50 pt-4">
-                    <span className="text-slate-400">Merge Success Ratio</span>
-                    <span className="font-bold text-[#1F3A5F]">
-                      {commitsInfo.prsCreated > 0 ? Math.round((commitsInfo.prsMerged / commitsInfo.prsCreated) * 100) : 100}%
-                    </span>
-                  </div>
-                </div>
-
-                {/* Issues */}
-                <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6">
-                  <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">Issue Resolutions</h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Issues Opened</span>
-                      <span className="block text-2xl font-extrabold text-[#1F3A5F]">{commitsInfo.issuesCreated}</span>
-                    </div>
-                    <div className="p-4 border border-[#1F3A5F]/5 rounded-xl bg-[#FAFAF8]/50 text-left space-y-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Issues Closed</span>
-                      <span className="block text-2xl font-extrabold text-[#1F6F5F]">{commitsInfo.issuesClosed}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center text-xs border-t border-slate-50 pt-4">
-                    <span className="text-slate-400">Resolution Velocity</span>
-                    <span className="font-bold text-[#1F3A5F]">High</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )}
 
           {/* TAB: REPOSITORY EXPLORER */}
           {activeTab === 'explorer' && (
