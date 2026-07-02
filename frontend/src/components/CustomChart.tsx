@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface DoughnutDialProps {
   percentage: number;
@@ -7,14 +7,24 @@ interface DoughnutDialProps {
   size?: number;
 }
 
-export function DoughnutDial({ percentage, label, color = '#1F6F5F', size = 120 }: DoughnutDialProps) {
-  const radius = 40;
-  const strokeWidth = 8;
+export function DoughnutDial({ percentage, label, color = '#1F6F5F', size = 80 }: DoughnutDialProps) {
+  const radius = 38;
+  const strokeWidth = 6;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  
+  // State for progress animation
+  const [animatedOffset, setAnimatedOffset] = useState(circumference);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const offsetValue = circumference - (percentage / 100) * circumference;
+      setAnimatedOffset(offsetValue);
+    }, 150);
+    return () => clearTimeout(t);
+  }, [percentage, circumference]);
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-2 p-4 rounded-2xl bg-white border border-[#1F3A5F]/5 shadow-sm w-fit">
+    <div className="flex flex-col items-center justify-center space-y-2">
       <div className="relative" style={{ width: size, height: size }}>
         <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
           {/* Background track circle */}
@@ -23,7 +33,7 @@ export function DoughnutDial({ percentage, label, color = '#1F6F5F', size = 120 
             cy="50" 
             r={radius} 
             fill="transparent" 
-            stroke="rgba(31, 58, 95, 0.03)" 
+            stroke="rgba(31, 58, 95, 0.05)" 
             strokeWidth={strokeWidth} 
           />
           {/* Foreground active progress circle */}
@@ -35,20 +45,23 @@ export function DoughnutDial({ percentage, label, color = '#1F6F5F', size = 120 
             stroke={color} 
             strokeWidth={strokeWidth} 
             strokeDasharray={circumference} 
-            strokeDashoffset={strokeDashoffset} 
+            strokeDashoffset={animatedOffset} 
             strokeLinecap="round"
             className="transition-all duration-1000 ease-out"
             style={{
-              filter: `drop-shadow(0 0 3px ${color}22)`
+              filter: `drop-shadow(0 0 2px ${color}33)`
             }}
           />
         </svg>
         {/* Metric score inside */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-extrabold text-[#1F3A5F] leading-none">{percentage}%</span>
-          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1.5">{label}</span>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-base font-black text-[#1F3A5F]">{percentage}%</span>
         </div>
       </div>
+      {/* Label placed outside circle to prevent text clipping */}
+      <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest text-center truncate max-w-[100px] block">
+        {label}
+      </span>
     </div>
   );
 }
@@ -92,7 +105,7 @@ export function BarChart({ data, height = 180 }: BarChartProps) {
   );
 }
 
-export function ContributionGrid() {
+export function ContributionGrid({ username = '', repositories = [] }: { username?: string; repositories?: any[] }) {
   // Mock arrays simulating GitHub style contribution board grid
   const cols = 24; // Weeks
   const rows = 7;  // Days of week
@@ -105,16 +118,47 @@ export function ContributionGrid() {
     'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/50'     // High
   ];
 
-  // Dynamically compile contribution map
-  const gridCells = [];
+  // Simple deterministic hash based on username to prevent random redraws on state updates
+  const getHash = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash);
+  };
+
+  const seed = getHash(username || 'saurav');
+
+  // Compile deterministic base grid
+  const gridCells: number[][] = [];
   for (let c = 0; c < cols; c++) {
-    const colCells = [];
+    const colCells: number[] = [];
     for (let r = 0; r < rows; r++) {
-      const baseChance = Math.sin(c / 2) + Math.cos(r / 2) + 1.2;
-      const intensity = Math.max(0, Math.min(4, Math.floor(Math.random() * baseChance * 1.8)));
+      const val = Math.abs(Math.sin(seed + c * 43 + r * 79));
+      let intensity = 0;
+      if (val > 0.88) intensity = 3;
+      else if (val > 0.72) intensity = 2;
+      else if (val > 0.55) intensity = 1;
       colCells.push(intensity);
     }
     gridCells.push(colCells);
+  }
+
+  // Inject real repository update events to light up cells
+  if (Array.isArray(repositories) && repositories.length > 0) {
+    repositories.forEach((repo: any) => {
+      const updateDate = repo.updatedAt || repo.pushedAt;
+      if (updateDate) {
+        const date = new Date(updateDate);
+        if (!isNaN(date.getTime())) {
+          const row = date.getDay(); // 0-6
+          const col = (date.getMonth() * 2 + Math.floor(date.getDate() / 15)) % cols;
+          if (gridCells[col]) {
+            gridCells[col][row] = 4; // High intensity for real commit
+          }
+        }
+      }
+    });
   }
 
   return (

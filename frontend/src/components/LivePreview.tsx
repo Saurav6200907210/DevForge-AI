@@ -896,7 +896,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
                   <span className="block text-[8px] text-slate-400 uppercase tracking-wider">Active Deploy Streak</span>
                 </div>
               </div>
-              <ContributionGrid />
+              <ContributionGrid username={profile.githubUsername} repositories={profile.repositories || []} />
             </div>
 
             <div className="flex justify-center">
