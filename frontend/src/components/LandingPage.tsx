@@ -67,8 +67,8 @@ export default function LandingPage({ onAnalyze, loading, error }: LandingPagePr
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Live Demo Simulation States
-  const [demoActive, setDemoActive] = useState(false);
-  const [demoStep, setDemoStep] = useState(-1);
+  const [demoActive, setDemoActive] = useState(true);
+  const [demoStep, setDemoStep] = useState(0);
   const [demoProgress, setDemoProgress] = useState(0);
 
   // Live Resume / Portfolio Preview States
@@ -198,6 +198,11 @@ export default function LandingPage({ onAnalyze, loading, error }: LandingPagePr
     setPortfolioPhase(0);
   };
 
+  const scrollToDemo = () => {
+    if (!demoActive) runDemo();
+    document.getElementById('live-demo')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   useEffect(() => {
     if (!demoActive || demoStep < 0) return;
 
@@ -222,9 +227,13 @@ export default function LandingPage({ onAnalyze, loading, error }: LandingPagePr
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        setDemoActive(false);
-        setDemoStep(-1);
-      }, 3000);
+        // Loop the simulation infinitely
+        setDemoStep(0);
+        setDemoProgress(0);
+        setResumeAtsScore(45);
+        setResumePhase(0);
+        setPortfolioPhase(0);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [demoActive, demoStep]);
@@ -317,7 +326,7 @@ export default function LandingPage({ onAnalyze, loading, error }: LandingPagePr
                 <ArrowRight className="h-4.5 w-4.5" />
               </a>
               <button 
-                onClick={runDemo}
+                onClick={scrollToDemo}
                 className="bg-white hover:bg-slate-50 text-[#1F3A5F] font-bold py-4 px-8 rounded-xl text-sm transition-all border border-[#1F3A5F]/10 flex items-center justify-center space-x-2 shadow-sm"
               >
                 <span>Watch Live AI Demo</span>
@@ -409,7 +418,7 @@ export default function LandingPage({ onAnalyze, loading, error }: LandingPagePr
         </section>
 
         {/* 2. LIVE AI GENERATION DEMO */}
-        <section className="max-w-6xl mx-auto px-6 md:px-12 space-y-8">
+        <section className="max-w-6xl mx-auto px-6 md:px-12 space-y-8" id="live-demo">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#1F3A5F]">See the AI Work in Real-Time</h2>
             <p className="text-slate-500 text-sm">Click the button below to simulate the entire deep analysis and profile generation pipeline.</p>

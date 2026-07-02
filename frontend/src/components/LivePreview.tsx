@@ -278,14 +278,22 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
       }));
     }
 
+    const totalSkillsCount = Object.values(getCategorizedSkills()).flat().length;
+    const computedStats = [
+      { label: "Verified Skill Sets", value: `${totalSkillsCount}+` },
+      { label: "Completed Deployments", value: `${(profile.repositories || []).length * 2 + 8}+` },
+      { label: "Open Source Projects", value: `${(profile.repositories || []).length}` },
+      { label: "Infrastructure Automation", value: "99.9%" }
+    ];
+
     return {
       fullName: profile.fullName || mockSauravDetails.fullName,
-      role: mockSauravDetails.role,
-      summary: profile.resume?.summary || mockSauravDetails.summary,
-      stats: mockSauravDetails.stats,
+      role: profile.resume?.role || profile.role || mockSauravDetails.role,
+      summary: profile.resume?.summary || profile.summary || mockSauravDetails.summary,
+      stats: computedStats,
       experience: (profile.resume?.experience && profile.resume.experience.length > 0) ? profile.resume.experience : mockSauravDetails.experience,
       projects: projectsList,
-      certifications: mockSauravDetails.certifications,
+      certifications: profile.resume?.certifications || mockSauravDetails.certifications,
       skills: getCategorizedSkills()
     };
   };
@@ -422,12 +430,12 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
         previewThemeMode === 'dark' ? 'text-slate-100 bg-[#0f172a]' : 'text-slate-800 bg-[#fafafa]'
       } p-6 rounded-xl`}>
         {/* Navbar */}
-        <div className="flex justify-between items-center border-b border-slate-500/10 pb-4">
+        <div className={`flex justify-between items-center border-b border-slate-500/10 pb-4 ${previewSize === 'mobile' ? 'flex-col space-y-2' : ''}`}>
           <span className="font-black text-lg tracking-tight uppercase flex items-center space-x-1.5">
             <span className="h-2.5 w-2.5 bg-blue-500 rounded-full"></span>
             <span>{currentProfile.fullName}</span>
           </span>
-          <div className="flex items-center space-x-6 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className={`flex items-center text-xs font-semibold uppercase tracking-wider text-slate-400 ${previewSize === 'mobile' ? 'space-x-3.5 text-[10px]' : 'space-x-6'}`}>
             <a href="#about" className="hover:text-blue-500 transition-colors">About</a>
             <a href="#skills" className="hover:text-blue-500 transition-colors">Skills</a>
             <a href="#projects" className="hover:text-blue-500 transition-colors">Projects</a>
@@ -447,7 +455,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
           <p className="text-sm text-slate-400 leading-relaxed">
             {currentProfile.summary}
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className={`flex gap-3 ${previewSize === 'mobile' ? 'flex-col' : 'flex-wrap'}`}>
             <a href="#projects" className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition-all">
               View Solutions
             </a>
@@ -458,7 +466,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-500/5 p-6 rounded-2xl border border-slate-500/10">
+        <div className={`grid gap-4 bg-slate-500/5 p-6 rounded-2xl border border-slate-500/10 ${previewSize === 'mobile' ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
           {currentProfile.stats.map((s, idx) => (
             <div key={idx} className="space-y-1">
               <span className="block text-2xl font-extrabold text-blue-500">{s.value}</span>
@@ -473,7 +481,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
             <h2 className="text-xl font-bold">Skills Matrix</h2>
             <p className="text-xs text-slate-400">Fetched directly from your custom resume data</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${previewSize === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
             {Object.entries(currentProfile.skills).map(([category, items]) => (
               <div key={category} className="p-5 border border-slate-500/10 rounded-xl bg-slate-50/5 space-y-3">
                 <h4 className="text-xs font-bold text-blue-500 uppercase tracking-wider">{category}</h4>
@@ -524,7 +532,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${previewSize === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
             {filtered.map((proj: any, idx: number) => (
               <div 
                 key={idx} 
@@ -678,7 +686,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
         <div className="relative z-10 flex justify-between items-center border-b border-white/5 pb-4 mb-8">
           <span className="font-extrabold text-sm tracking-widest text-[#00F5D4] uppercase flex items-center space-x-2">
             <Sparkle className="h-4 w-4 animate-spin text-[#00F5D4]" style={{ animationDuration: '6s' }} />
-            <span>SAURAV.DEV</span>
+            <span>{currentProfile.fullName.split(' ')[0].toUpperCase()}.DEV</span>
           </span>
           <div className="hidden md:flex space-x-6 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
             <a href="#about" className="hover:text-[#00F5D4] transition-all">/about</a>
@@ -705,10 +713,10 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
         <div className="relative z-10 space-y-6 pt-6 pb-12">
           <div className="space-y-2">
             <span className="text-xs font-bold uppercase tracking-widest text-[#3B82F6] bg-[#3B82F6]/5 border border-[#3B82F6]/10 px-3 py-1 rounded-full inline-block">
-              🚀 Platform Automation Engineer
+              🚀 {currentProfile.role}
             </span>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-none text-white">
-              Saurav Kumar
+              {currentProfile.fullName}
             </h1>
             <h2 className="text-lg sm:text-xl font-bold font-mono text-slate-400 flex items-center h-8">
               &gt; <span className="text-[#00F5D4] ml-2">{typedText}</span>
@@ -720,7 +728,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
             {currentProfile.summary}
           </p>
 
-          <div className="flex flex-wrap gap-3">
+          <div className={`flex gap-3 ${previewSize === 'mobile' ? 'flex-col' : 'flex-wrap'}`}>
             <a 
               href="#projects" 
               className="bg-gradient-to-r from-[#00F5D4] to-[#3B82F6] hover:scale-105 text-[#030712] font-extrabold px-6 py-3 rounded-xl text-xs transition-all shadow-[0_0_15px_rgba(0,245,212,0.3)]"
@@ -738,7 +746,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
         </div>
 
         {/* Stats Grid */}
-        <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        <div className={`relative z-10 grid gap-4 mb-12 ${previewSize === 'mobile' ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4'}`}>
           {currentProfile.stats.map((s, idx) => (
             <div key={idx} className="bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 hover:border-[#00F5D4]/20 p-4 rounded-xl transition-all shadow-sm">
               <span className="block text-2xl font-black bg-gradient-to-r from-[#00F5D4] to-[#3B82F6] bg-clip-text text-transparent">{s.value}</span>
@@ -754,7 +762,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
             <p className="text-[10px] text-slate-400">Core skills fetched dynamically from your resume profile</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${previewSize === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
             {Object.entries(currentProfile.skills).map(([category, items]) => (
               <div key={category} className="bg-white/[0.02] border border-white/5 p-4 rounded-xl space-y-3 hover:border-[#00F5D4]/20 transition-colors">
                 <h4 className="text-[10px] font-extrabold text-[#3B82F6] uppercase tracking-wider">{category}</h4>
@@ -823,7 +831,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${previewSize === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
             {filtered.map((p: any, idx: number) => (
               <div 
                 key={idx}
@@ -976,12 +984,12 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
       <div className="bg-[#FFFFFF] text-slate-800 p-6 sm:p-8 space-y-16 rounded-xl shadow border border-slate-200 text-left min-h-[600px] transition-colors duration-300">
         
         {/* Navbar */}
-        <div className="flex justify-between items-center border-b border-slate-200 pb-4">
+        <div className={`flex justify-between items-center border-b border-slate-200 pb-4 ${previewSize === 'mobile' ? 'flex-col space-y-2' : ''}`}>
           <span className="font-black text-lg tracking-tight uppercase flex items-center space-x-1.5 text-[#1F3A5F]">
             <span className="h-2.5 w-2.5 bg-[#1F6F5F] rounded-full"></span>
             <span>{currentProfile.fullName}</span>
           </span>
-          <div className="flex items-center space-x-6 text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className={`flex items-center text-xs font-semibold uppercase tracking-wider text-slate-400 ${previewSize === 'mobile' ? 'space-x-3.5 text-[10px]' : 'space-x-6'}`}>
             <a href="#about" className="hover:text-[#1F6F5F] transition-colors">About</a>
             <a href="#skills" className="hover:text-[#1F6F5F] transition-colors">Skills</a>
             <a href="#projects" className="hover:text-[#1F6F5F] transition-colors">Projects</a>
@@ -1001,7 +1009,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
           <p className="text-sm text-slate-500 leading-relaxed">
             {currentProfile.summary}
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className={`flex gap-3 ${previewSize === 'mobile' ? 'flex-col' : 'flex-wrap'}`}>
             <a href="#projects" className="bg-[#1F6F5F] hover:bg-[#1F6F5F]/90 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition-all">
               View Solutions
             </a>
@@ -1012,7 +1020,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+        <div className={`grid gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200 ${previewSize === 'mobile' ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
           {currentProfile.stats.map((s, idx) => (
             <div key={idx} className="space-y-1">
               <span className="block text-2xl font-extrabold text-[#1F6F5F]">{s.value}</span>
@@ -1027,7 +1035,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
             <h2 className="text-xl font-bold text-[#1F3A5F]">Skills Matrix</h2>
             <p className="text-xs text-slate-400">Fetched directly from your custom resume data</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${previewSize === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
             {Object.entries(currentProfile.skills).map(([category, items]) => (
               <div key={category} className="p-5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-3">
                 <h4 className="text-xs font-bold text-[#1F6F5F] uppercase tracking-wider">{category}</h4>
@@ -1078,7 +1086,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid gap-4 ${previewSize === 'mobile' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
             {filtered.map((proj: any, idx: number) => (
               <div 
                 key={idx} 
