@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Award, 
   Sparkles, 
@@ -141,6 +142,55 @@ const generateTailoredProjectBullets = (name: string, description: string): stri
   return bullets.slice(0, 3);
 };
 
+const getProjectTechStack = (name: string, description: string, mainLanguage?: string): string => {
+  const nameLower = name.toLowerCase();
+  const descLower = (description || '').toLowerCase();
+  const stack: string[] = [];
+  
+  if (nameLower.includes('devforge') || descLower.includes('career') || descLower.includes('resume')) {
+    return "React, TypeScript, Node.js, Express, Tailwind CSS, OpenAI API";
+  }
+  if (nameLower.includes('kubevision') || nameLower.includes('kube') || descLower.includes('kubernetes')) {
+    return "React, TypeScript, Kubernetes API, Go, Docker, Tailwind CSS";
+  }
+  if (nameLower.includes('gitanalyze') || nameLower.includes('git') || descLower.includes('github')) {
+    return "React, Canvas API, Chart.js, GitHub REST API, Node.js, Tailwind CSS";
+  }
+  if (nameLower.includes('hirelens') || descLower.includes('hiring') || descLower.includes('recruiter')) {
+    return "React, Node.js, PostgreSQL, OpenAI, Tailwind CSS, Express";
+  }
+  if (nameLower.includes('terraform') || descLower.includes('aws') || descLower.includes('infrastructure')) {
+    return "Terraform, AWS (EC2, VPC, IAM), Bash, Docker";
+  }
+  if (nameLower.includes('jenkins') || descLower.includes('ci/cd') || descLower.includes('webhook')) {
+    return "Jenkins, Docker, Bash, GitHub Webhooks, AWS EC2";
+  }
+  
+  if (descLower.includes('react') || nameLower.includes('react')) stack.push("React");
+  if (descLower.includes('typescript') || nameLower.includes('ts')) stack.push("TypeScript");
+  if (descLower.includes('javascript') || nameLower.includes('js')) stack.push("JavaScript");
+  if (descLower.includes('node') || descLower.includes('express')) stack.push("Node.js", "Express");
+  if (descLower.includes('docker')) stack.push("Docker");
+  if (descLower.includes('kubernetes') || descLower.includes('k8s')) stack.push("Kubernetes");
+  if (descLower.includes('aws') || descLower.includes('cloud')) stack.push("AWS");
+  if (descLower.includes('python')) stack.push("Python");
+  if (descLower.includes('golang') || descLower.includes('go ')) stack.push("Go");
+  if (descLower.includes('tailwind')) stack.push("Tailwind CSS");
+  if (descLower.includes('mongodb')) stack.push("MongoDB");
+  if (descLower.includes('postgresql') || descLower.includes('postgres')) stack.push("PostgreSQL");
+  
+  if (mainLanguage && !stack.includes(mainLanguage)) {
+    stack.unshift(mainLanguage);
+  }
+  
+  if (stack.length === 0) {
+    return "React, Node.js, TypeScript, Tailwind CSS";
+  }
+  
+  return stack.join(', ');
+};
+
+
 
 interface ResumeEditorProps {
   profile: any;
@@ -157,6 +207,9 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
     projects: [],
     achievements: []
   };
+
+  const [printScaleClass, setPrintScaleClass] = useState<'scale-normal' | 'scale-compact' | 'scale-ultra-compact'>('scale-normal');
+  const [printAlignClass, setPrintAlignClass] = useState<'align-center' | 'align-start'>('align-center');
 
   const [activeTab, setActiveTab] = useState<'details' | 'experience' | 'projects' | 'education' | 'achievements'>('details');
   const [selectedTemplate, setSelectedTemplate] = useState(() => {
@@ -203,7 +256,8 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
           homepageUrl: repo.homepageUrl || repo.homepage || '',
           description: repo.description || '',
           stars: repo.stars || 0,
-          bullets: generateTailoredProjectBullets(repo.name, repo.description || '')
+          bullets: generateTailoredProjectBullets(repo.name, repo.description || ''),
+          techStack: getProjectTechStack(repo.name, repo.description || '', repo.language)
         }));
     }
     const baseProjects = resume.projects || [];
@@ -211,7 +265,8 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
       const hasGenericBullets = !p.bullets || p.bullets.length === 0 || p.bullets.some((b: string) => b.includes('leveraging modern software engineering patterns'));
       return {
         ...p,
-        bullets: hasGenericBullets ? generateTailoredProjectBullets(p.name, p.description || '') : p.bullets
+        bullets: hasGenericBullets ? generateTailoredProjectBullets(p.name, p.description || '') : p.bullets,
+        techStack: p.techStack || getProjectTechStack(p.name, p.description || '')
       };
     });
   });
@@ -228,7 +283,8 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
           homepageUrl: repo.homepageUrl || repo.homepage || '',
           description: repo.description || '',
           stars: repo.stars || 0,
-          bullets: generateTailoredProjectBullets(repo.name, repo.description || '')
+          bullets: generateTailoredProjectBullets(repo.name, repo.description || ''),
+          techStack: getProjectTechStack(repo.name, repo.description || '', repo.language)
         }));
       setProjects(syncedProjects);
     }
@@ -251,62 +307,84 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
   const [improvingSection, setImprovingSection] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const safeUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `https://${url}`;
+  };
+
+  const renderContactHeader = () => {
+    const items = [];
+    if (email) {
+      items.push(<span key="email">{email}</span>);
+    }
+    if (phone) {
+      items.push(<span key="phone">{phone}</span>);
+    }
+    if (location) {
+      items.push(<span key="location">{location}</span>);
+    }
+    if (githubUsername) {
+      items.push(
+        <a key="github" href={`https://github.com/${githubUsername}`} target="_blank" rel="noreferrer" className="font-semibold text-[#1F6F5F] hover:underline">
+          github.com/{githubUsername}
+        </a>
+      );
+    }
+    if (linkedinUrl) {
+      items.push(
+        <a key="linkedin" href={safeUrl(linkedinUrl)} target="_blank" rel="noreferrer" className="font-semibold text-blue-600 hover:underline">
+          linkedin.com/in/{linkedinUrl.split('/').pop()}
+        </a>
+      );
+    }
+
+    return items.reduce((acc: any[], current, idx) => {
+      if (idx === 0) return [current];
+      return [...acc, <span key={`sep-${idx}`} className="text-slate-300 mx-1">•</span>, current];
+    }, []);
+  };
+
   // Template render helpers
   const renderModernAts = () => {
     return (
-      <div className="space-y-3.5 font-sans text-[10px] text-slate-800 leading-normal">
+      <div className="space-y-3 font-sans text-[11.5px] text-slate-800 leading-normal">
         {/* Header */}
-        <div className="text-center space-y-1 border-b pb-2 border-slate-100">
-          <h1 className="text-lg font-bold uppercase tracking-tight text-[#1F3A5F]">{fullName}</h1>
-          <div className="flex flex-wrap justify-center gap-x-2 text-[8px] text-slate-500">
-            <span>{email}</span>
-            <span>•</span>
-            <span>{phone || '+91 XXXXX XXXXX'}</span>
-            <span>•</span>
-            <span>{location}</span>
-            {githubUsername && (
-              <>
-                <span>•</span>
-                <span className="font-semibold text-[#1F6F5F]">github.com/{githubUsername}</span>
-              </>
-            )}
-            {linkedinUrl && (
-              <>
-                <span>•</span>
-                <span className="font-semibold text-blue-600">linkedin.com/in/{linkedinUrl.split('/').pop()}</span>
-              </>
-            )}
+        <div className="text-center space-y-1.5 border-b pb-2 border-slate-100">
+          <h1 className="text-[25px] font-bold uppercase tracking-tight text-[#1F3A5F] leading-none">{fullName}</h1>
+          <div className="flex flex-wrap justify-center gap-x-2 text-[11px] text-slate-500">
+            {renderContactHeader()}
           </div>
         </div>
 
         {/* Summary */}
         {summary && (
           <div className="space-y-0.5 text-left">
-            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Professional Summary</h2>
-            <p className="text-slate-600 text-justify leading-relaxed">{summary}</p>
+            <h2 className="text-[14.5px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Professional Summary</h2>
+            <p className="text-[11.5px] text-slate-600 text-justify leading-relaxed">{summary}</p>
           </div>
         )}
 
         {/* Skills */}
         {skillsString && (
           <div className="space-y-0.5 text-left">
-            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Technical Skills</h2>
-            <p className="text-slate-600 leading-relaxed"><strong className="text-slate-700">Technologies: </strong>{skillsString}</p>
+            <h2 className="text-[14.5px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Technical Skills</h2>
+            <p className="text-[11.5px] text-slate-600 leading-relaxed"><strong className="text-slate-700">Technologies: </strong>{skillsString}</p>
           </div>
         )}
 
         {/* Experience */}
         {experiences.length > 0 && (
           <div className="space-y-1 text-left">
-            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Professional Experience</h2>
+            <h2 className="text-[14.5px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Professional Experience</h2>
             <div className="space-y-2">
               {experiences.map((exp, idx) => (
                 <div key={idx} className="space-y-0.5">
-                  <div className="flex justify-between items-baseline font-bold text-slate-700">
+                  <div className="flex justify-between items-baseline font-bold text-slate-700 text-[11.5px]">
                     <span>{exp.role} <span className="font-normal text-slate-400">|</span> {exp.company}</span>
-                    <span className="text-[8px] text-slate-500 font-normal">{exp.duration}</span>
+                    <span className="text-[11px] text-slate-500 font-normal">{exp.duration}</span>
                   </div>
-                  <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+                  <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-slate-600">
                     {(exp.bullets || []).map((bullet: string, bIdx: number) => (
                       <li key={bIdx}>{bullet}</li>
                     ))}
@@ -320,24 +398,33 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
         {/* Projects */}
         {projects.length > 0 && (
           <div className="space-y-1 text-left">
-            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Featured Projects</h2>
+            <h2 className="text-[14.5px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Featured Projects</h2>
             <div className="space-y-2">
               {projects.map((proj, idx) => (
                 <div key={idx} className="space-y-0.5">
-                  <div className="flex justify-between items-baseline font-bold text-slate-700">
-                    <div className="flex items-center space-x-1.5 flex-wrap">
-                      <span className="font-extrabold">{proj.name}</span>
+                  <div className="flex justify-between items-baseline font-bold text-slate-700 text-[11.5px]">
+                    <span className="font-extrabold text-[12px]">{proj.name}</span>
+                    <div className="flex items-center space-x-1.5 text-[11px] font-normal text-slate-500">
                       {proj.githubUrl && (
-                        <span className="text-[8px] font-normal text-slate-400">({proj.githubUrl.replace('https://', '')})</span>
+                        <a href={safeUrl(proj.githubUrl)} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                          GitHub
+                        </a>
                       )}
+                      {proj.githubUrl && proj.homepageUrl && <span>|</span>}
                       {proj.homepageUrl && (
-                        <span className="text-[8px] font-normal text-[#1F6F5F]">({proj.homepageUrl})</span>
+                        <a href={safeUrl(proj.homepageUrl)} target="_blank" rel="noreferrer" className="text-[#1F6F5F] hover:underline">
+                          Live Demo
+                        </a>
                       )}
                     </div>
-                    <span className="text-[8px] text-slate-500 font-normal">★ {proj.stars || 0} stars</span>
                   </div>
-                  <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
-                    {(proj.bullets || []).map((bullet: string, bIdx: number) => (
+                  {proj.techStack && (
+                    <div className="text-[11px] text-slate-600 leading-tight">
+                      <strong className="text-slate-700">Tech Stack:</strong> {proj.techStack}
+                    </div>
+                  )}
+                  <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-slate-600">
+                    {(proj.bullets || []).slice(0, 5).map((bullet: string, bIdx: number) => (
                       <li key={bIdx}>{bullet}</li>
                     ))}
                   </ul>
@@ -350,24 +437,24 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
         {/* Education */}
         {((education.tenth?.schoolName) || (education.twelfth?.schoolName) || (education.college?.collegeName)) && (
           <div className="space-y-1 text-left">
-            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Education</h2>
+            <h2 className="text-[14.5px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Education</h2>
             <div className="space-y-1.5">
               {education.college?.collegeName && (
-                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                <div className="flex justify-between items-baseline font-bold text-slate-700 text-[11.5px]">
                   <span>{education.college.degree} <span className="font-normal text-slate-400">|</span> {education.college.collegeName}</span>
-                  <span className="text-[8px] text-slate-500 font-normal">{education.college.year} ({education.college.marks})</span>
+                  <span className="text-[11px] text-slate-500 font-normal">{education.college.year} ({education.college.marks})</span>
                 </div>
               )}
               {education.twelfth?.schoolName && (
-                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                <div className="flex justify-between items-baseline font-bold text-slate-700 text-[11.5px]">
                   <span>12th Standard <span className="font-normal text-slate-400">|</span> {education.twelfth.schoolName}</span>
-                  <span className="text-[8px] text-slate-500 font-normal">{education.twelfth.year} ({education.twelfth.marks})</span>
+                  <span className="text-[11px] text-slate-500 font-normal">{education.twelfth.year} ({education.twelfth.marks})</span>
                 </div>
               )}
               {education.tenth?.schoolName && (
-                <div className="flex justify-between items-baseline font-bold text-slate-700">
+                <div className="flex justify-between items-baseline font-bold text-slate-700 text-[11.5px]">
                   <span>10th Standard <span className="font-normal text-slate-400">|</span> {education.tenth.schoolName}</span>
-                  <span className="text-[8px] text-slate-500 font-normal">{education.tenth.year} ({education.tenth.marks})</span>
+                  <span className="text-[11px] text-slate-500 font-normal">{education.tenth.year} ({education.tenth.marks})</span>
                 </div>
               )}
             </div>
@@ -377,8 +464,8 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
         {/* Achievements */}
         {showAchievements && achievements.length > 0 && (
           <div className="space-y-1 text-left">
-            <h2 className="text-[10px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Achievements & Certifications</h2>
-            <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
+            <h2 className="text-[14.5px] font-bold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wide">Achievements & Certifications</h2>
+            <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-slate-600">
               {achievements.map((ach, idx) => (
                 <li key={idx}>{ach}</li>
               ))}
@@ -398,28 +485,38 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
           <div className="space-y-1.5">
             <h3 className="text-[10px] font-extrabold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wider">Contact</h3>
             <div className="space-y-1.5 text-[8.5px] text-slate-600 break-all">
-              <div>
-                <strong className="block text-slate-700">Email</strong>
-                <span>{email}</span>
-              </div>
-              <div>
-                <strong className="block text-slate-700">Phone</strong>
-                <span>{phone || '+91 XXXXX XXXXX'}</span>
-              </div>
-              <div>
-                <strong className="block text-slate-700">Location</strong>
-                <span>{location}</span>
-              </div>
+              {email && (
+                <div>
+                  <strong className="block text-slate-700">Email</strong>
+                  <span>{email}</span>
+                </div>
+              )}
+              {phone && (
+                <div>
+                  <strong className="block text-slate-700">Phone</strong>
+                  <span>{phone}</span>
+                </div>
+              )}
+              {location && (
+                <div>
+                  <strong className="block text-slate-700">Location</strong>
+                  <span>{location}</span>
+                </div>
+              )}
               {githubUsername && (
                 <div>
                   <strong className="block text-slate-700">GitHub</strong>
-                  <span className="text-[#1F6F5F]">github.com/{githubUsername}</span>
+                  <a href={`https://github.com/${githubUsername}`} target="_blank" rel="noreferrer" className="text-[#1F6F5F] hover:underline">
+                    github.com/{githubUsername}
+                  </a>
                 </div>
               )}
               {linkedinUrl && (
                 <div>
                   <strong className="block text-slate-700">LinkedIn</strong>
-                  <span className="text-blue-600">linkedin.com/in/{linkedinUrl.split('/').pop()}</span>
+                  <a href={safeUrl(linkedinUrl)} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                    linkedin.com/in/{linkedinUrl.split('/').pop()}
+                  </a>
                 </div>
               )}
             </div>
@@ -509,8 +606,19 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
                 {projects.map((proj, idx) => (
                   <div key={idx} className="space-y-0.5">
                     <div className="flex justify-between items-baseline font-bold text-slate-700">
-                      <span>{proj.name}</span>
-                      <span className="text-[8px] text-slate-500 font-normal">★ {proj.stars || 0} stars</span>
+                      <div className="flex items-center space-x-2">
+                        <span>{proj.name}</span>
+                        {proj.githubUrl && (
+                          <a href={safeUrl(proj.githubUrl)} target="_blank" rel="noreferrer" className="text-[8px] font-normal text-slate-400 hover:text-[#1F6F5F] hover:underline font-sans">
+                            [Code]
+                          </a>
+                        )}
+                        {proj.homepageUrl && (
+                          <a href={safeUrl(proj.homepageUrl)} target="_blank" rel="noreferrer" className="text-[8px] font-normal text-[#1F6F5F] hover:underline font-sans">
+                            [Live]
+                          </a>
+                        )}
+                      </div>
                     </div>
                     <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
                       {(proj.bullets || []).map((bullet: string, bIdx: number) => (
@@ -549,11 +657,26 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
             <p className="text-[8.5px] font-bold text-[#1F6F5F] uppercase tracking-wider">{profile.developerLevel || 'Product Engineer'}</p>
           </div>
           <div className="text-right text-[8px] text-slate-500 space-y-0.5">
-            <div>{email} | {phone || '+91 XXXXX XXXXX'}</div>
-            <div>{location}</div>
+            {(email || phone) && (
+              <div>
+                {email}
+                {email && phone && ' | '}
+                {phone}
+              </div>
+            )}
+            {location && <div>{location}</div>}
             <div className="font-semibold text-slate-700">
-              {githubUsername && `github.com/${githubUsername}`}
-              {linkedinUrl && ` | linkedin.com/in/${linkedinUrl.split('/').pop()}`}
+              {githubUsername && (
+                <a href={`https://github.com/${githubUsername}`} target="_blank" rel="noreferrer" className="hover:text-blue-600 hover:underline">
+                  github.com/{githubUsername}
+                </a>
+              )}
+              {githubUsername && linkedinUrl && ' | '}
+              {linkedinUrl && (
+                <a href={safeUrl(linkedinUrl)} target="_blank" rel="noreferrer" className="hover:text-blue-600 hover:underline">
+                  linkedin.com/in/{linkedinUrl.split('/').pop()}
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -585,13 +708,16 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
                     <div className="flex items-center space-x-2">
                       <span className="text-[#1F3A5F] font-extrabold">{proj.name}</span>
                       {proj.githubUrl && (
-                        <span className="text-[8px] font-normal text-blue-600">[Code]</span>
+                        <a href={safeUrl(proj.githubUrl)} target="_blank" rel="noreferrer" className="text-[8px] font-normal text-blue-600 hover:underline">
+                          [Code]
+                        </a>
                       )}
                       {proj.homepageUrl && (
-                        <span className="text-[8px] font-normal text-[#1F6F5F]">[Live]</span>
+                        <a href={safeUrl(proj.homepageUrl)} target="_blank" rel="noreferrer" className="text-[8px] font-normal text-[#1F6F5F] hover:underline">
+                          [Live]
+                        </a>
                       )}
                     </div>
-                    <span className="text-[7.5px] text-slate-400 font-normal">★ {proj.stars || 0} stars</span>
                   </div>
                   <ul className="list-disc pl-4 space-y-0.5 text-slate-600">
                     {(proj.bullets || []).map((bullet: string, bIdx: number) => (
@@ -777,7 +903,12 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
         showAchievements,
         education,
         linkedinUrl,
-        atsScore: Math.min(98, 85 + (skillsArray.length > 5 ? 5 : 0) + (experiences.length > 0 ? 5 : 0))
+        atsScore: Math.min(100, 80 + 
+          (selectedTemplate === 'modern_ats' ? 10 : 5) + 
+          (skillsArray.length > 5 ? 5 : 0) + 
+          (experiences.length > 0 ? 5 : 0) +
+          (projects.length > 0 ? 5 : 0)
+        )
       };
 
       const res = await api.resumes.save(profile.id, updatedResume);
@@ -806,7 +937,29 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
 
   // Printable layout window trigger
   const handlePrint = () => {
-    window.print();
+    const previewEl = document.querySelector('.printable-resume');
+    if (previewEl) {
+      const contentHeight = previewEl.scrollHeight;
+      console.log('Detected preview resume height:', contentHeight);
+      
+      // Visual preview matches A4 ratio at 595px width -> 842px height boundary
+      if (contentHeight > 842) {
+        setPrintAlignClass('align-start');
+        if (contentHeight > 910) {
+          setPrintScaleClass('scale-ultra-compact');
+        } else {
+          setPrintScaleClass('scale-compact');
+        }
+      } else {
+        setPrintAlignClass('align-center');
+        setPrintScaleClass('scale-normal');
+      }
+    }
+    
+    // Allow state update to propagate to the print DOM
+    setTimeout(() => {
+      window.print();
+    }, 150);
   };
 
   const addExperience = () => {
@@ -868,29 +1021,111 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
     <div className="space-y-8 max-w-7xl mx-auto w-full text-[#2B2B2B] pb-16 text-left">
       <style>{`
         @media print {
-          /* Hide all UI elements except the printable resume sheet */
-          body * {
-            visibility: hidden;
-            background: white !important;
+          /* Hide all UI elements including root layout and react app mount */
+          body > *:not(.print-only-layout) {
+            display: none !important;
           }
-          .printable-resume, .printable-resume * {
-            visibility: visible;
+          #root {
+            display: none !important;
           }
-          .printable-resume {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-          }
-          /* Custom page borders */
+          
+          /* Set page size to A4 and remove browser headers/footers */
           @page {
-            margin: 1.5cm 1.2cm 1.5cm 1.2cm;
+            size: A4 portrait;
+            margin: 0 !important;
           }
+          
+          /* Set body size to match exactly A4 sheet */
+          html, body {
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            background: white !important;
+            background-color: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          /* Style print portal container to fit exactly inside one A4 page */
+          .print-only-layout {
+            display: flex !important;
+            flex-direction: column !important;
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-width: 210mm !important;
+            max-height: 297mm !important;
+            background: white !important;
+            background-color: white !important;
+            color: #1a202c !important;
+            padding: 14mm 16mm !important; /* Proper page margins (12-16mm) */
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          
+          /* Centered vertical alignment if content is shorter than A4 page height */
+          .print-only-layout.align-center {
+            justify-content: center !important;
+          }
+          
+          /* Align to top if content overflows, to prevent clipping at the top boundary */
+          .print-only-layout.align-start {
+            justify-content: flex-start !important;
+          }
+          
+          /* Standard text rendering & typography optimization for print */
+          .print-only-layout * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            text-rendering: optimizeLegibility !important;
+          }
+          
+          /* Normal Scale */
+          .print-only-layout.scale-normal .space-y-3.5 > * + * { margin-top: 0.6rem !important; }
+          .print-only-layout.scale-normal .space-y-3 > * + * { margin-top: 0.5rem !important; }
+          .print-only-layout.scale-normal .space-y-2 > * + * { margin-top: 0.35rem !important; }
+          .print-only-layout.scale-normal .space-y-1.5 > * + * { margin-top: 0.25rem !important; }
+          .print-only-layout.scale-normal ul { margin-top: 0.15rem !important; }
+          .print-only-layout.scale-normal li { margin-bottom: 0.08rem !important; line-height: 1.25 !important; }
+
+          /* Compact Scale: reduce spacing slightly, reduce margins slightly, reduce font size by at most 0.5px */
+          .print-only-layout.scale-compact {
+            padding: 12mm 14mm !important;
+          }
+          .print-only-layout.scale-compact .space-y-3.5 > * + * { margin-top: 0.45rem !important; }
+          .print-only-layout.scale-compact .space-y-3 > * + * { margin-top: 0.38rem !important; }
+          .print-only-layout.scale-compact .space-y-2 > * + * { margin-top: 0.25rem !important; }
+          .print-only-layout.scale-compact .space-y-1.5 > * + * { margin-top: 0.18rem !important; }
+          .print-only-layout.scale-compact ul { margin-top: 0.1rem !important; }
+          .print-only-layout.scale-compact li { margin-bottom: 0.04rem !important; line-height: 1.2 !important; font-size: 10.5px !important; }
+          .print-only-layout.scale-compact h1.text-\[25px\] { font-size: 24px !important; }
+          .print-only-layout.scale-compact h2.text-\[14.5px\] { font-size: 13.5px !important; }
+          .print-only-layout.scale-compact p.text-\[11.5px\], .print-only-layout.scale-compact div.text-\[11.5px\], .print-only-layout.scale-compact span.text-\[11.5px\] { font-size: 11px !important; }
+          .print-only-layout.scale-compact .text-\[11px\] { font-size: 10.5px !important; }
+
+          /* Ultra Compact Scale: reduce spacing more, reduce margins more, reduce font size by at most 1px */
+          .print-only-layout.scale-ultra-compact {
+            padding: 10mm 12mm !important;
+          }
+          .print-only-layout.scale-ultra-compact .space-y-3.5 > * + * { margin-top: 0.38rem !important; }
+          .print-only-layout.scale-ultra-compact .space-y-3 > * + * { margin-top: 0.3rem !important; }
+          .print-only-layout.scale-ultra-compact .space-y-2 > * + * { margin-top: 0.18rem !important; }
+          .print-only-layout.scale-ultra-compact .space-y-1.5 > * + * { margin-top: 0.12rem !important; }
+          .print-only-layout.scale-ultra-compact ul { margin-top: 0.08rem !important; }
+          .print-only-layout.scale-ultra-compact li { margin-bottom: 0.02rem !important; line-height: 1.15 !important; font-size: 10px !important; }
+          .print-only-layout.scale-ultra-compact h1.text-\[25px\] { font-size: 23px !important; }
+          .print-only-layout.scale-ultra-compact h2.text-\[14.5px\] { font-size: 13px !important; }
+          .print-only-layout.scale-ultra-compact p.text-\[11.5px\], .print-only-layout.scale-ultra-compact div.text-\[11.5px\], .print-only-layout.scale-ultra-compact span.text-\[11.5px\] { font-size: 10.5px !important; }
+          .print-only-layout.scale-ultra-compact .text-\[11px\] { font-size: 10px !important; }
         }
       `}</style>
       
@@ -1250,10 +1485,21 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
                             value={project.homepageUrl || ''}
                             onChange={(e) => updateProject(idx, 'homepageUrl', e.target.value)}
                             placeholder="e.g. https://my-app.vercel.app"
-                            className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
-                          />
-                        </div>
+                          className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                        />
                       </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tech Stack (comma-separated)</label>
+                      <input 
+                        type="text"
+                        value={project.techStack || ''}
+                        onChange={(e) => updateProject(idx, 'techStack', e.target.value)}
+                        placeholder="e.g. React, Node.js, TypeScript, PostgreSQL"
+                        className="w-full bg-white border border-[#1F3A5F]/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#1F6F5F] text-[#2B2B2B]"
+                      />
+                    </div>
 
 
                       <div className="space-y-2 border-t border-slate-100 pt-3">
@@ -1661,11 +1907,14 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
           </div>
 
           {/* Invisible print container that becomes visible during window.print() */}
-          <div className="hidden print:block printable-resume">
-            {selectedTemplate === 'modern_ats' && renderModernAts()}
-            {selectedTemplate === 'executive' && renderExecutive()}
-            {selectedTemplate === 'product_engineer' && renderProductEngineer()}
-          </div>
+          {createPortal(
+            <div className={`hidden print:block print-only-layout ${printScaleClass} ${printAlignClass}`}>
+              {selectedTemplate === 'modern_ats' && renderModernAts()}
+              {selectedTemplate === 'executive' && renderExecutive()}
+              {selectedTemplate === 'product_engineer' && renderProductEngineer()}
+            </div>,
+            document.body
+          )}
 
         </div>
 
