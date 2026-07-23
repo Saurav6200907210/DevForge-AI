@@ -123,18 +123,15 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
     ],
     experience: [
       {
-        company: "Vortex Labs",
-        role: "Lead DevOps Architect",
-        duration: "2024 - Present",
-        description: "Orchestrated highly available Kubernetes clusters on GCP. Automated microservices pipeline reducing deployment cycles by 65%. Developed AI self-healing automation routines for infrastructure health checks.",
-        achievements: ["Reduced cloud spending by 35% through resource auto-scaling", "Designed GitOps workflow supporting 40+ microservices"]
-      },
-      {
-        company: "InnoTech Systems",
-        role: "DevOps & Automation Engineer",
-        duration: "2022 - 2024",
-        description: "Implemented DevSecOps practices with automated vulnerability scanning (Trivy, SonarQube). Maintained Ansible and Terraform configurations for cloud infrastructure provisioning.",
-        achievements: ["Automated SSL renewals and compliance tracking for 200+ micro-domains", "Set up ELK logging dashboard supporting live telemetry monitoring"]
+        company: 'TechForge Solutions',
+        role: 'Senior Full Stack Developer',
+        duration: '2024 - Present',
+        description: 'Spearheaded transition to modular microservices using TypeScript and Go, increasing query performance by 40%.',
+        bullets: [
+          'Spearheaded transition to modular microservices using TypeScript and Go, increasing query performance by 40%.',
+          'Built dynamic glassmorphic administrative control dashboards utilizing React, Framer Motion, and Tailwind CSS.',
+          'Established automated Docker orchestration pipelines, shortening pipeline start bounds down to 40 seconds.'
+        ]
       }
     ],
     projects: [
@@ -362,11 +359,15 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
   };
 
   const handleGitSync = async () => {
+    const repoName = prompt("Enter the name for your GitHub repository:", subdomain);
+    if (repoName === null) return; // User cancelled
+    const finalRepoName = repoName.trim() || subdomain;
+
     try {
       setSyncingGit(true);
       setGitLogs([]);
 
-      const res = await api.portfolios.pushRepo(profile.id || 'dev', subdomain);
+      const res = await api.portfolios.pushRepo(profile.id || 'dev', finalRepoName);
       if (res.success) {
         for (let i = 0; i < res.logs.length; i++) {
           await new Promise(resolve => setTimeout(resolve, 300));

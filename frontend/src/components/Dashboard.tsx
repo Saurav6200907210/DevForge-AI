@@ -42,6 +42,22 @@ import {
 } from './CustomChart';
 import { api } from '../api';
 
+// GitHub GraphQL Contribution Calendar Interfaces
+export interface ContributionDay {
+  contributionCount: number;
+  date: string;
+  weekday: number;
+}
+
+export interface ContributionWeek {
+  contributionDays: ContributionDay[];
+}
+
+export interface ContributionCalendar {
+  totalContributions: number;
+  weeks: ContributionWeek[];
+}
+
 interface DashboardProps {
   profile: any;
   onLogout: () => void;
@@ -64,107 +80,115 @@ export default function Dashboard({ profile, onLogout, onUpdateProfile }: Dashbo
   const techStack = profile.analysis?.techStack || [];
   const aiScores = profile.analysis?.aiScores || {};
   const aiRecommendations = profile.analysis?.aiRecommendations || [];
-  // Dynamically calculate developer metrics from actual repositories!
-  const getDynamicMetrics = () => {
-    const reposList = profile.repositories || [];
-    
-    // 1. Total commits (computed dynamically based on repo sizes/stars)
-    const computedTotalCommits = reposList.reduce((sum: number, r: any) => {
-      const stars = r.stars || 0;
-      const size = r.size || 500;
-      const factor = Math.floor((stars * 4) + (size / 150) + 12);
-      return sum + Math.min(250, factor);
-    }, 0) || 48;
-    
-    // 2. Streaks based on actual updatedAt dates of the repositories
-    let currentStreakDays = 0;
-    let longestStreakDays = 12;
-    
-    if (reposList.length > 0) {
-      const updateTimes = reposList
-        .map((r: any) => new Date(r.updatedAt || r.pushedAt).getTime())
-        .filter((t: number) => !isNaN(t))
-        .sort((a: number, b: number) => b - a);
-      
-      if (updateTimes.length > 0) {
-        const mostRecent = updateTimes[0];
-        const diffDays = Math.floor((new Date().getTime() - mostRecent) / (1000 * 60 * 60 * 24));
-        if (diffDays <= 2) {
-          currentStreakDays = 6;
-          longestStreakDays = 18;
-        } else if (diffDays <= 7) {
-          currentStreakDays = 2;
-          longestStreakDays = 14;
-        } else {
-          currentStreakDays = 0;
-          longestStreakDays = 12;
-        }
+
+/**
+ * GITHUB GRAPHQL CONTRIBUTION CALENDAR ENGINE & STREAK ALGORITHM:
+ * 
+ * 1. Total Commits:
+ *    Read directly from `contributionCalendar.totalContributions`.
+ * 
+ * 2. Current Streak:
+ *    Iterates backwards from today (or yesterday if today has no contributions yet) 
+ *    and counts consecutive days where `contributionCount > 0`.
+ * 
+ * 3. Longest Streak:
+ *    Scans the entire `contributionCalendar.weeks[].contributionDays[]` sequentially 
+ *    to compute the maximum consecutive days with `contributionCount > 0`.
+ * 
+ * 4. Peak Productivity:
+ *    Aggregates contributions by weekday index (0 = Sunday to 6 = Saturday)
+ *    across `contributionCalendar.weeks[].contributionDays[]` and selects the maximum.
+ */
+const calculateCalendarStats = (calendar: ContributionCalendar | null | undefined) => {
+  if (!calendar || !Array.isArray(calendar.weeks) || calendar.weeks.length === 0) {
+    return null;
+  }
+
+  const flatDays = calendar.weeks.flatMap(w => w.contributionDays || []);
+  const totalCommits = calendar.totalContributions || 0;
+
+  // Longest Streak
+  let longestStreak = 0;
+  let tempStreak = 0;
+  flatDays.forEach(day => {
+    if (day.contributionCount > 0) {
+      tempStreak++;
+      if (tempStreak > longestStreak) longestStreak = tempStreak;
+    } else {
+      tempStreak = 0;
+    }
+  });
+
+  // Current Streak
+  const todayStr = new Date().toISOString().split('T')[0];
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+
+  const dayMap = new Map(flatDays.map(d => [d.date, d.contributionCount]));
+  let currentStreak = 0;
+  let startDateStr: string | null = null;
+
+  if (dayMap.has(todayStr) && (dayMap.get(todayStr) || 0) > 0) {
+    startDateStr = todayStr;
+  } else if (dayMap.has(yesterdayStr) && (dayMap.get(yesterdayStr) || 0) > 0) {
+    startDateStr = yesterdayStr;
+  } else {
+    const lastActiveDay = [...flatDays].reverse().find(d => d.contributionCount > 0);
+    if (lastActiveDay) startDateStr = lastActiveDay.date;
+  }
+
+  if (startDateStr) {
+    let curr = new Date(startDateStr + 'T00:00:00Z');
+    while (true) {
+      const dStr = curr.toISOString().split('T')[0];
+      if (dayMap.has(dStr) && (dayMap.get(dStr) || 0) > 0) {
+        currentStreak++;
+        curr.setUTCDate(curr.getUTCDate() - 1);
+      } else {
+        break;
       }
     }
+  }
 
-    // 3. Peak productivity day based on actual repository update weekdays
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const weekdayCounts: { [key: string]: number } = {};
-    daysOfWeek.forEach(d => { weekdayCounts[d] = 0; });
-    
-    reposList.forEach((r: any) => {
-      const updateDate = r.updatedAt || r.pushedAt;
-      if (updateDate) {
-        const date = new Date(updateDate);
-        if (!isNaN(date.getTime())) {
-          const dayName = daysOfWeek[date.getDay()];
-          weekdayCounts[dayName] = (weekdayCounts[dayName] || 0) + 1;
-        }
-      }
-    });
-    
-    let peakDay = 'Wednesday';
-    let maxCount = 0;
-    Object.entries(weekdayCounts).forEach(([day, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        peakDay = day;
-      }
-    });
-    
-    // 4. Commit time distribution
-    let morning = 0;
-    let afternoon = 0;
-    let night = 0;
-    
-    reposList.forEach((r: any) => {
-      const updateDate = r.updatedAt || r.pushedAt;
-      if (updateDate) {
-        const date = new Date(updateDate);
-        if (!isNaN(date.getTime())) {
-          const hour = date.getHours();
-          if (hour >= 6 && hour < 12) morning += 1;
-          else if (hour >= 12 && hour < 18) afternoon += 1;
-          else night += 1;
-        }
-      }
-    });
-    
-    const totalDist = morning + afternoon + night || 1;
-    const morningPercent = Math.round((morning / totalDist) * 100) || 40;
-    const afternoonPercent = Math.round((afternoon / totalDist) * 100) || 23;
-    const nightPercent = 100 - morningPercent - afternoonPercent || 37;
+  // Peak Productivity
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
+  flatDays.forEach(day => {
+    if (typeof day.weekday === 'number' && day.weekday >= 0 && day.weekday <= 6) {
+      weekdayCounts[day.weekday] += (day.contributionCount || 0);
+    }
+  });
 
-    return {
-      totalCommits: computedTotalCommits,
-      currentStreak: currentStreakDays,
-      longestStreak: longestStreakDays,
-      peakProductivity: peakDay,
-      morning: morningPercent,
-      afternoon: afternoonPercent,
-      night: nightPercent
-    };
+  let maxCount = -1;
+  let peakWeekdayIndex = 0;
+  weekdayCounts.forEach((cnt, idx) => {
+    if (cnt > maxCount) {
+      maxCount = cnt;
+      peakWeekdayIndex = idx;
+    }
+  });
+
+  return {
+    totalCommits,
+    currentStreak,
+    longestStreak,
+    peakProductivity: weekdays[peakWeekdayIndex]
   };
+};
 
-  const commitsInfo = profile.analysis?.commitIntelligence ? {
-    ...profile.analysis.commitIntelligence,
-    peakProductivity: profile.analysis.commitIntelligence.peakProductivity || 'Wednesday'
-  } : getDynamicMetrics();
+const calendarStats = calculateCalendarStats(profile.analysis?.contributionCalendar);
+const backendIntelligence = profile.analysis?.commitIntelligence;
+
+const commitsInfo = {
+  totalCommits: calendarStats?.totalCommits ?? backendIntelligence?.totalCommits ?? 0,
+  currentStreak: calendarStats?.currentStreak ?? backendIntelligence?.currentStreak ?? 0,
+  longestStreak: calendarStats?.longestStreak ?? backendIntelligence?.longestStreak ?? 0,
+  peakProductivity: calendarStats?.peakProductivity || backendIntelligence?.peakProductivity || 'Wednesday',
+  morning: backendIntelligence?.morning ?? 35,
+  afternoon: backendIntelligence?.afternoon ?? 45,
+  night: backendIntelligence?.night ?? 20
+};
 
   // Dynamic Featured Projects State
   const [featuredRepos, setFeaturedRepos] = useState<string[]>(
@@ -455,9 +479,9 @@ export default function Dashboard({ profile, onLogout, onUpdateProfile }: Dashbo
                 {/* Streaks & Totals Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
                   <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Commits (Recent)</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Commits (All-Time)</span>
                     <span className="block text-3xl font-extrabold text-[#1F3A5F]">{commitsInfo.totalCommits}</span>
-                    <span className="text-[10px] text-[#1F6F5F] font-semibold bg-[#1F6F5F]/5 px-2 py-0.5 rounded-full">Scanned from Event Stream</span>
+                    <span className="text-[10px] text-[#1F6F5F] font-semibold bg-[#1F6F5F]/5 px-2 py-0.5 rounded-full">Scanned from GitHub API</span>
                   </div>
 
                   <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
