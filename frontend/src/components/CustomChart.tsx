@@ -105,61 +105,55 @@ export function BarChart({ data, height = 180 }: BarChartProps) {
   );
 }
 
-export function ContributionGrid({ username = '', repositories = [] }: { username?: string; repositories?: any[] }) {
-  // Mock arrays simulating GitHub style contribution board grid
-  const cols = 24; // Weeks
-  const rows = 7;  // Days of week
-  
-  const intensityLevels = [
-    'bg-slate-100 border-[0.5px] border-[#1F3A5F]/5', // Empty
-    'bg-[#1F6F5F]/10 border-[0.5px] border-[#1F6F5F]/20', // Very light
-    'bg-[#1F6F5F]/30 border-[0.5px] border-[#1F6F5F]/30', // Light
-    'bg-[#1F6F5F]/60 border-[0.5px] border-[#1F6F5F]/40', // Medium
-    'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/50'     // High
-  ];
+interface ContributionDay {
+  date: string;
+  contributionCount: number;
+  contributionLevel: 'NONE' | 'FIRST_QUARTILE' | 'SECOND_QUARTILE' | 'THIRD_QUARTILE' | 'FOURTH_QUARTILE' | string;
+  weekday?: number;
+}
 
-  // Simple deterministic hash based on username to prevent random redraws on state updates
-  const getHash = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+interface ContributionWeek {
+  contributionDays: ContributionDay[];
+}
+
+interface ContributionCalendar {
+  totalContributions?: number;
+  weeks: ContributionWeek[];
+}
+
+export function ContributionGrid({ username = '', calendar }: { username?: string; calendar?: ContributionCalendar | null }) {
+  const weeks = calendar?.weeks || [];
+
+  const getIntensityClass = (level?: string): string => {
+    switch (level) {
+      case 'FIRST_QUARTILE':
+      case '1':
+        return 'bg-[#1F6F5F]/20 border-[0.5px] border-[#1F6F5F]/30';
+      case 'SECOND_QUARTILE':
+      case '2':
+        return 'bg-[#1F6F5F]/45 border-[0.5px] border-[#1F6F5F]/40';
+      case 'THIRD_QUARTILE':
+      case '3':
+        return 'bg-[#1F6F5F]/75 border-[0.5px] border-[#1F6F5F]/60';
+      case 'FOURTH_QUARTILE':
+      case '4':
+        return 'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/80';
+      case 'NONE':
+      case '0':
+      default:
+        return 'bg-slate-100 border-[0.5px] border-[#1F3A5F]/5';
     }
-    return Math.abs(hash);
   };
 
-  const seed = getHash(username || 'saurav');
-
-  // Compile deterministic base grid
-  const gridCells: number[][] = [];
-  for (let c = 0; c < cols; c++) {
-    const colCells: number[] = [];
-    for (let r = 0; r < rows; r++) {
-      const val = Math.abs(Math.sin(seed + c * 43 + r * 79));
-      let intensity = 0;
-      if (val > 0.88) intensity = 3;
-      else if (val > 0.72) intensity = 2;
-      else if (val > 0.55) intensity = 1;
-      colCells.push(intensity);
-    }
-    gridCells.push(colCells);
-  }
-
-  // Inject real repository update events to light up cells
-  if (Array.isArray(repositories) && repositories.length > 0) {
-    repositories.forEach((repo: any) => {
-      const updateDate = repo.updatedAt || repo.pushedAt;
-      if (updateDate) {
-        const date = new Date(updateDate);
-        if (!isNaN(date.getTime())) {
-          const row = date.getDay(); // 0-6
-          const col = (date.getMonth() * 2 + Math.floor(date.getDate() / 15)) % cols;
-          if (gridCells[col]) {
-            gridCells[col][row] = 4; // High intensity for real commit
-          }
-        }
-      }
-    });
-  }
+  const formatTooltip = (day: ContributionDay): string => {
+    const countText = day.contributionCount === 0 ? 'No contributions' : `${day.contributionCount} contribution${day.contributionCount === 1 ? '' : 's'}`;
+    const dateFormatted = day.date ? new Date(day.date + 'T00:00:00Z').toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }) : day.date;
+    return `${countText} on ${dateFormatted}`;
+  };
 
   return (
     <div className="space-y-4 w-full p-6 rounded-2xl bg-white border border-[#1F3A5F]/5 shadow-sm overflow-x-auto text-left">
@@ -167,23 +161,23 @@ export function ContributionGrid({ username = '', repositories = [] }: { usernam
         <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest">365 Day Contribution Heatmap</h4>
         <div className="flex items-center space-x-2 text-[10px] text-slate-400 font-semibold">
           <span>Less</span>
-          <div className="h-2.5 w-2.5 rounded bg-slate-100 border border-[#1F3A5F]/5"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/10 border border-[#1F6F5F]/20"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/30 border border-[#1F6F5F]/30"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/60 border border-[#1F6F5F]/40"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F] border border-[#1F6F5F]/50"></div>
+          <div className="h-2.5 w-2.5 rounded bg-slate-100 border border-[#1F3A5F]/5" title="No contributions"></div>
+          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/20 border border-[#1F6F5F]/30" title="Low contributions"></div>
+          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/45 border border-[#1F6F5F]/40" title="Medium-Low contributions"></div>
+          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/75 border border-[#1F6F5F]/60" title="Medium-High contributions"></div>
+          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F] border border-[#1F6F5F]/80" title="High contributions"></div>
           <span>More</span>
         </div>
       </div>
       
       <div className="flex space-x-[3px] py-2 w-fit mx-auto select-none">
-        {gridCells.map((week, cIndex) => (
-          <div key={cIndex} className="flex flex-col space-y-[3px]">
-            {week.map((level, rIndex) => (
+        {weeks.map((week, wIndex) => (
+          <div key={wIndex} className="flex flex-col space-y-[3px]">
+            {week.contributionDays.map((day, dIndex) => (
               <div 
-                key={rIndex}
-                className={`h-2.5 w-2.5 rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${intensityLevels[level]}`}
-                title={`Contributions: Level ${level}`}
+                key={day.date || dIndex}
+                className={`h-2.5 w-2.5 rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${getIntensityClass(day.contributionLevel)}`}
+                title={formatTooltip(day)}
               ></div>
             ))}
           </div>

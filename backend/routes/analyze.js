@@ -308,8 +308,9 @@ async function fetchGraphQLContributionCalendar(username, token) {
             totalContributions
             weeks {
               contributionDays {
-                contributionCount
                 date
+                contributionCount
+                contributionLevel
                 weekday
               }
             }
@@ -355,21 +356,31 @@ async function fetchScrapedContributionCalendar(username) {
     const totalMatch = html.match(/([\d,]+)\s+contributions\s+in\s+the\s+last\s+year/i) || html.match(/([\d,]+)\s+contributions/i);
     const totalContributions = totalMatch ? parseInt(totalMatch[1].replace(/,/g, ''), 10) : 0;
 
-    const idToDate = {};
-    const tdRegex1 = /<td[^>]*data-date="(\d{4}-\d{2}-\d{2})"[^>]*id="(contribution-day-component-\d+-\d+)"/g;
-    const tdRegex2 = /<td[^>]*id="(contribution-day-component-\d+-\d+)"[^>]*data-date="(\d{4}-\d{2}-\d{2})"/g;
+    const levelsMap = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
+    const idToMeta = {};
 
-    let match;
-    while ((match = tdRegex1.exec(html)) !== null) { idToDate[match[2]] = match[1]; }
-    while ((match = tdRegex2.exec(html)) !== null) { idToDate[match[1]] = match[2]; }
+    const tdMatches = [...html.matchAll(/<td[^>]*id="(contribution-day-component-\d+-\d+)"[^>]*>/g)];
+    tdMatches.forEach(m => {
+      const fullTag = m[0];
+      const id = m[1];
+      const dateMatch = fullTag.match(/data-date="(\d{4}-\d{2}-\d{2})"/);
+      const levelMatch = fullTag.match(/data-level="(\d+)"/);
+      if (dateMatch) {
+        idToMeta[id] = {
+          date: dateMatch[1],
+          level: levelMatch ? parseInt(levelMatch[1], 10) : 0
+        };
+      }
+    });
 
     const allDays = [];
     const tipRegex = /<tool-tip[^>]*for="(contribution-day-component-\d+-\d+)"[^>]*>([^<]+)<\/tool-tip>/gi;
+    let match;
     while ((match = tipRegex.exec(html)) !== null) {
       const id = match[1];
       const text = match[2].trim();
-      const dateStr = idToDate[id];
-      if (!dateStr) continue;
+      const meta = idToMeta[id];
+      if (!meta) continue;
 
       let count = 0;
       if (!text.startsWith('No')) {
@@ -378,10 +389,13 @@ async function fetchScrapedContributionCalendar(username) {
           count = parseInt(countMatch[1].replace(/,/g, ''), 10);
         }
       }
-      const d = new Date(dateStr + 'T00:00:00Z');
+      const d = new Date(meta.date + 'T00:00:00Z');
+      const levelIdx = meta.level || (count > 10 ? 4 : count > 5 ? 3 : count > 2 ? 2 : count > 0 ? 1 : 0);
+
       allDays.push({
-        date: dateStr,
+        date: meta.date,
         contributionCount: count,
+        contributionLevel: levelsMap[levelIdx] || 'NONE',
         weekday: d.getUTCDay()
       });
     }
