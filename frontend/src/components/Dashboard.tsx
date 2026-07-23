@@ -89,19 +89,19 @@ function GitHubStatsCard({ username, calendar, repositories }: { username: strin
       </h3>
 
       {(showStats || showStreak) && (
-        <div className={`grid grid-cols-1 ${showStats && showStreak ? 'lg:grid-cols-2' : ''} gap-6 items-center justify-center`}>
+        <div className={`grid grid-cols-1 ${showStats && showStreak ? 'lg:grid-cols-2' : ''} gap-6 items-center justify-center w-full`}>
           {/* GitHub Stats Card */}
           {showStats && (
-            <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+            <div className="w-full h-[260px] flex items-center justify-center bg-[#0d1117] rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/10 shadow-sm">
               {statsLoading && (
-                <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+                <div className="w-full h-full bg-slate-800/50 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
                   Loading GitHub Stats...
                 </div>
               )}
               <img 
                 src={statsUrl} 
                 alt={`${cleanUsername} GitHub Stats`} 
-                className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${statsLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+                className={`w-full h-full object-contain transition-opacity duration-300 ${statsLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
                 onLoad={() => setStatsLoading(false)}
                 onError={() => {
                   setStatsLoading(false);
@@ -113,16 +113,16 @@ function GitHubStatsCard({ username, calendar, repositories }: { username: strin
 
           {/* GitHub Streak Card */}
           {showStreak && (
-            <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+            <div className="w-full h-[260px] flex items-center justify-center bg-[#0d1117] rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/10 shadow-sm">
               {streakLoading && (
-                <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+                <div className="w-full h-full bg-slate-800/50 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
                   Loading GitHub Streak...
                 </div>
               )}
               <img 
                 src={streakUrl} 
                 alt={`${cleanUsername} GitHub Streak`} 
-                className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${streakLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+                className={`w-full h-full object-contain transition-opacity duration-300 ${streakLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
                 onLoad={() => setStreakLoading(false)}
                 onError={() => {
                   setStreakLoading(false);
