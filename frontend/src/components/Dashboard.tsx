@@ -58,6 +58,79 @@ export interface ContributionCalendar {
   weeks: ContributionWeek[];
 }
 
+function GitHubStatsCard({ username }: { username: string }) {
+  const cleanUsername = (username || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
+
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(false);
+
+  const [streakLoading, setStreakLoading] = useState(true);
+  const [streakError, setStreakError] = useState(false);
+
+  const statsUrl = `https://github-readme-stats.vercel.app/api?username=${encodeURIComponent(cleanUsername)}&show_icons=true&theme=tokyonight&hide_border=true`;
+  const streakUrl = `https://streak-stats.demolab.com?user=${encodeURIComponent(cleanUsername)}&theme=tokyonight&hide_border=true`;
+
+  return (
+    <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6 text-left">
+      <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">
+        GitHub Statistics
+      </h3>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center justify-center">
+        {/* GitHub Stats Card */}
+        <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+          {statsLoading && !statsError && (
+            <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+              Loading GitHub Stats...
+            </div>
+          )}
+          {statsError ? (
+            <div className="py-12 text-center text-xs text-slate-400 font-semibold">
+              GitHub statistics unavailable.
+            </div>
+          ) : (
+            <img 
+              src={statsUrl} 
+              alt={`${cleanUsername} GitHub Stats`} 
+              className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${statsLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+              onLoad={() => setStatsLoading(false)}
+              onError={() => {
+                setStatsLoading(false);
+                setStatsError(true);
+              }}
+            />
+          )}
+        </div>
+
+        {/* GitHub Streak Card */}
+        <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+          {streakLoading && !streakError && (
+            <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+              Loading GitHub Streak...
+            </div>
+          )}
+          {streakError ? (
+            <div className="py-12 text-center text-xs text-slate-400 font-semibold">
+              GitHub statistics unavailable.
+            </div>
+          ) : (
+            <img 
+              src={streakUrl} 
+              alt={`${cleanUsername} GitHub Streak`} 
+              className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${streakLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+              onLoad={() => setStreakLoading(false)}
+              onError={() => {
+                setStreakLoading(false);
+                setStreakError(true);
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface DashboardProps {
   profile: any;
   onLogout: () => void;
@@ -472,6 +545,9 @@ const commitsInfo = {
                 </div>
 
               </div>
+
+              {/* NEW GITHUB STATISTICS CARD */}
+              <GitHubStatsCard username={profile.githubUsername} />
 
               {/* COMMIT INTELLIGENCE INTEGRATION */}
               <div className="space-y-6">
