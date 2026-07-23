@@ -124,25 +124,20 @@ interface ContributionCalendar {
 export function ContributionGrid({ username = '', calendar }: { username?: string; calendar?: ContributionCalendar | null }) {
   const weeks = calendar?.weeks || [];
 
-  const getIntensityClass = (level?: string): string => {
-    switch (level) {
-      case 'FIRST_QUARTILE':
-      case '1':
-        return 'bg-[#1F6F5F]/20 border-[0.5px] border-[#1F6F5F]/30';
-      case 'SECOND_QUARTILE':
-      case '2':
-        return 'bg-[#1F6F5F]/45 border-[0.5px] border-[#1F6F5F]/40';
-      case 'THIRD_QUARTILE':
-      case '3':
-        return 'bg-[#1F6F5F]/75 border-[0.5px] border-[#1F6F5F]/60';
-      case 'FOURTH_QUARTILE':
-      case '4':
-        return 'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/80';
-      case 'NONE':
-      case '0':
-      default:
-        return 'bg-slate-100 border-[0.5px] border-[#1F3A5F]/5';
-    }
+  const getIntensityClass = (level?: string, count?: number): string => {
+    if (level === 'FOURTH_QUARTILE' || level === '4') return 'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/80';
+    if (level === 'THIRD_QUARTILE' || level === '3') return 'bg-[#1F6F5F]/75 border-[0.5px] border-[#1F6F5F]/60';
+    if (level === 'SECOND_QUARTILE' || level === '2') return 'bg-[#1F6F5F]/45 border-[0.5px] border-[#1F6F5F]/40';
+    if (level === 'FIRST_QUARTILE' || level === '1') return 'bg-[#1F6F5F]/20 border-[0.5px] border-[#1F6F5F]/30';
+
+    // Fall back to contributionCount if contributionLevel is NONE, missing, or undefined
+    const cnt = typeof count === 'number' ? count : 0;
+    if (cnt > 14) return 'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/80';
+    if (cnt > 7) return 'bg-[#1F6F5F]/75 border-[0.5px] border-[#1F6F5F]/60';
+    if (cnt > 3) return 'bg-[#1F6F5F]/45 border-[0.5px] border-[#1F6F5F]/40';
+    if (cnt > 0) return 'bg-[#1F6F5F]/20 border-[0.5px] border-[#1F6F5F]/30';
+
+    return 'bg-slate-100 border-[0.5px] border-[#1F3A5F]/5';
   };
 
   const formatTooltip = (day: ContributionDay): string => {
@@ -170,19 +165,26 @@ export function ContributionGrid({ username = '', calendar }: { username?: strin
         </div>
       </div>
       
-      <div className="flex space-x-[3px] py-2 w-fit mx-auto select-none">
-        {weeks.map((week, wIndex) => (
-          <div key={wIndex} className="flex flex-col space-y-[3px]">
-            {week.contributionDays.map((day, dIndex) => (
-              <div 
-                key={day.date || dIndex}
-                className={`h-2.5 w-2.5 rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${getIntensityClass(day.contributionLevel)}`}
-                title={formatTooltip(day)}
-              ></div>
-            ))}
-          </div>
-        ))}
-      </div>
+      {weeks.length === 0 ? (
+        <div className="py-8 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl space-y-1">
+          <p className="font-bold text-[#1F3A5F]">Contribution Calendar Unavailable</p>
+          <p className="text-[11px]">No contribution weeks data returned for @{username || 'user'}. Please check backend logs.</p>
+        </div>
+      ) : (
+        <div className="flex space-x-[3px] py-2 w-fit mx-auto select-none">
+          {weeks.map((week, wIndex) => (
+            <div key={wIndex} className="flex flex-col space-y-[3px]">
+              {week.contributionDays.map((day, dIndex) => (
+                <div 
+                  key={day.date || dIndex}
+                  className={`h-2.5 w-2.5 rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${getIntensityClass(day.contributionLevel, day.contributionCount)}`}
+                  title={formatTooltip(day)}
+                ></div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

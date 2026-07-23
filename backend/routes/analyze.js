@@ -300,6 +300,8 @@ function runLocalQualityAudit(username, repos, techStack) {
  * or public contribution calendar HTML scraper (resilient fallback).
  */
 async function fetchGraphQLContributionCalendar(username, token) {
+  console.log(`[GraphQL Engine] Initiating GraphQL query for username: "${username}"...`);
+  
   const query = `
     query($login: String!) {
       user(login: $login) {
@@ -333,17 +335,31 @@ async function fetchGraphQLContributionCalendar(username, token) {
       }
     );
 
+    console.log(`[GraphQL Response] HTTP Status: ${response.status}`);
+
+    if (response.data?.errors) {
+      console.error('[GraphQL API Errors Detected]:', JSON.stringify(response.data.errors, null, 2));
+    }
+
+    if (!response.data?.data?.user) {
+      console.warn(`[GraphQL Warning] User "${username}" not found in GitHub GraphQL directory or token lacks public user scope.`);
+    }
+
     const calendar = response.data?.data?.user?.contributionsCollection?.contributionCalendar;
     if (calendar && typeof calendar.totalContributions === 'number' && Array.isArray(calendar.weeks)) {
+      console.log(`[GraphQL Success] Retrieved valid contributionCalendar! totalContributions=${calendar.totalContributions}, weeksCount=${calendar.weeks.length}`);
       return calendar;
+    } else {
+      console.warn(`[GraphQL Warning] Response object missing valid contributionCalendar.weeks structure.`);
     }
   } catch (err) {
-    console.warn(`GraphQL contribution calendar fetch notice for ${username}:`, err.message);
+    console.error(`[GraphQL Error] Connection exception for "${username}":`, err.response?.data || err.message);
   }
   return null;
 }
 
 async function fetchScrapedContributionCalendar(username) {
+  console.log(`[Scraper Engine] Initiating HTML contribution calendar scrape for user: "${username}"...`);
   try {
     const res = await axios.get(`https://github.com/users/${username}/contributions`, {
       headers: {
@@ -415,22 +431,36 @@ async function fetchScrapedContributionCalendar(username) {
       weeks.push(currentWeek);
     }
 
+    console.log(`[Scraper Success] Successfully parsed HTML contribution calendar for "${username}"! totalContributions=${totalContributions}, weeksCount=${weeks.length}`);
     return {
       totalContributions,
       weeks
     };
   } catch (err) {
-    console.error(`Contribution calendar fallback error for ${username}:`, err.message);
+    console.error(`[Scraper Error] Contribution calendar scrape exception for "${username}":`, err.message);
   }
   return null;
 }
 
 async function getContributionCalendar(username, token) {
-  if (token) {
+  if (token && token.trim().length > 0) {
+    console.log(`[Calendar Manager] GITHUB_TOKEN present. Attempting GraphQL query...`);
     const calendar = await fetchGraphQLContributionCalendar(username, token);
-    if (calendar) return calendar;
+    if (calendar && Array.isArray(calendar.weeks) && calendar.weeks.length > 0) {
+      return calendar;
+    }
+    console.warn(`[Calendar Manager] GraphQL query returned no valid weeks. Falling back to HTML contribution calendar scraper...`);
+  } else {
+    console.log(`[Calendar Manager] No GITHUB_TOKEN set in .env. Booting HTML contribution calendar scraper...`);
   }
-  return await fetchScrapedContributionCalendar(username);
+
+  const scrapedCalendar = await fetchScrapedContributionCalendar(username);
+  if (scrapedCalendar && Array.isArray(scrapedCalendar.weeks) && scrapedCalendar.weeks.length > 0) {
+    return scrapedCalendar;
+  }
+
+  console.error(`[Calendar Manager Error] Failed to retrieve contribution calendar for "${username}".`);
+  return null;
 }
 
 /**
