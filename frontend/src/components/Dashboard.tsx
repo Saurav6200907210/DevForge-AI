@@ -67,8 +67,12 @@ function GitHubStatsCard({ username }: { username: string }) {
   const [streakLoading, setStreakLoading] = useState(true);
   const [streakError, setStreakError] = useState(false);
 
+  const [graphLoading, setGraphLoading] = useState(true);
+  const [graphError, setGraphError] = useState(false);
+
   const statsUrl = `https://github-readme-stats.vercel.app/api?username=${encodeURIComponent(cleanUsername)}&show_icons=true&theme=tokyonight&hide_border=true`;
   const streakUrl = `https://streak-stats.demolab.com?user=${encodeURIComponent(cleanUsername)}&theme=tokyonight&hide_border=true`;
+  const graphUrl = `https://github-readme-activity-graph.vercel.app/graph?username=${encodeURIComponent(cleanUsername)}&theme=tokyo-night&hide_border=true`;
 
   return (
     <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6 text-left">
@@ -126,6 +130,31 @@ function GitHubStatsCard({ username }: { username: string }) {
             />
           )}
         </div>
+      </div>
+
+      {/* GitHub Activity Graph Card */}
+      <div className="w-full flex flex-col items-center justify-center min-h-[220px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+        {graphLoading && !graphError && (
+          <div className="w-full h-52 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+            Loading GitHub Activity Graph...
+          </div>
+        )}
+        {graphError ? (
+          <div className="py-12 text-center text-xs text-slate-400 font-semibold">
+            GitHub activity graph unavailable.
+          </div>
+        ) : (
+          <img 
+            src={graphUrl} 
+            alt={`${cleanUsername} GitHub Activity Graph`} 
+            className={`w-full h-auto max-w-full rounded-xl transition-opacity duration-300 ${graphLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+            onLoad={() => setGraphLoading(false)}
+            onError={() => {
+              setGraphLoading(false);
+              setGraphError(true);
+            }}
+          />
+        )}
       </div>
     </div>
   );
