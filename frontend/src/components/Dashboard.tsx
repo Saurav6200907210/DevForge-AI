@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   BarChart2, 
   FileText, 
@@ -38,7 +38,8 @@ import {
   BarChart, 
   ContributionGrid, 
   LanguageTreemap, 
-  CommitTimeChart 
+  CommitTimeChart,
+  ElectricContributionGraph
 } from './CustomChart';
 import { api } from '../api';
 
@@ -58,7 +59,7 @@ export interface ContributionCalendar {
   weeks: ContributionWeek[];
 }
 
-function GitHubStatsCard({ username }: { username: string }) {
+function GitHubStatsCard({ username, calendar, repositories }: { username: string; calendar?: ContributionCalendar | null; repositories?: any[] }) {
   const cleanUsername = (username || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
 
   const [statsLoading, setStatsLoading] = useState(true);
@@ -67,20 +68,19 @@ function GitHubStatsCard({ username }: { username: string }) {
   const [streakLoading, setStreakLoading] = useState(true);
   const [streakError, setStreakError] = useState(false);
 
-  const [graphLoading, setGraphLoading] = useState(true);
-  const [graphError, setGraphError] = useState(false);
-
   const statsUrl = `https://github-readme-stats.vercel.app/api?username=${encodeURIComponent(cleanUsername)}&show_icons=true&theme=tokyonight&hide_border=true`;
   const streakUrl = `https://streak-stats.demolab.com?user=${encodeURIComponent(cleanUsername)}&theme=tokyonight&hide_border=true`;
-  const graphUrl = `https://github-readme-activity-graph.vercel.app/graph?username=${encodeURIComponent(cleanUsername)}&theme=tokyo-night&hide_border=true`;
-
-  if (statsError && streakError && graphError) {
-    return null;
-  }
 
   const showStats = !statsError;
   const showStreak = !streakError;
-  const showGraph = !graphError;
+
+  if (statsError && streakError) {
+    return (
+      <div className="space-y-6">
+        <ElectricContributionGraph calendar={calendar} username={cleanUsername} repositories={repositories} />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6 text-left">
@@ -134,26 +134,8 @@ function GitHubStatsCard({ username }: { username: string }) {
         </div>
       )}
 
-      {/* GitHub Activity Graph Card */}
-      {showGraph && (
-        <div className="w-full flex flex-col items-center justify-center min-h-[220px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
-          {graphLoading && (
-            <div className="w-full h-52 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
-              Loading GitHub Activity Graph...
-            </div>
-          )}
-          <img 
-            src={graphUrl} 
-            alt={`${cleanUsername} GitHub Activity Graph`} 
-            className={`w-full h-auto max-w-full rounded-xl transition-opacity duration-300 ${graphLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
-            onLoad={() => setGraphLoading(false)}
-            onError={() => {
-              setGraphLoading(false);
-              setGraphError(true);
-            }}
-          />
-        </div>
-      )}
+      {/* Redesigned High-Voltage Plasma Electric Contribution Line Graph */}
+      <ElectricContributionGraph calendar={calendar} username={cleanUsername} repositories={repositories} />
     </div>
   );
 }
@@ -574,7 +556,7 @@ const commitsInfo = {
               </div>
 
               {/* NEW GITHUB STATISTICS CARD */}
-              <GitHubStatsCard username={profile.githubUsername} />
+              <GitHubStatsCard username={profile.githubUsername} calendar={profile.analysis?.contributionCalendar} repositories={repositories} />
 
               {/* COMMIT INTELLIGENCE INTEGRATION */}
               <div className="space-y-6">
