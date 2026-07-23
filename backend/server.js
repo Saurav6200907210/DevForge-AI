@@ -39,7 +39,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// DevForge AI Backend Entry Point
+// DevForge AI Backend Entry Point Server
 app.listen(PORT, () => {
   console.log(`=========================================`);
   console.log(`🚀 DevForge AI Server running on PORT ${PORT}`);

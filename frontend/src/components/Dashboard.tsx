@@ -582,7 +582,7 @@ const commitsInfo = {
                 {/* Streaks & Totals Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
                   <div className="bg-white border border-[#1F3A5F]/5 rounded-2xl p-5 shadow-sm space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Commits (All-Time)</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Commits (This Year)</span>
                     <span className="block text-3xl font-extrabold text-[#1F3A5F]">{commitsInfo.totalCommits}</span>
                     <span className="text-[10px] text-[#1F6F5F] font-semibold bg-[#1F6F5F]/5 px-2 py-0.5 rounded-full">Scanned from GitHub API</span>
                   </div>
