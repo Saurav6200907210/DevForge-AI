@@ -125,19 +125,19 @@ export function ContributionGrid({ username = '', calendar }: { username?: strin
   const weeks = calendar?.weeks || [];
 
   const getIntensityClass = (level?: string, count?: number): string => {
-    if (level === 'FOURTH_QUARTILE' || level === '4') return 'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/80';
-    if (level === 'THIRD_QUARTILE' || level === '3') return 'bg-[#1F6F5F]/75 border-[0.5px] border-[#1F6F5F]/60';
-    if (level === 'SECOND_QUARTILE' || level === '2') return 'bg-[#1F6F5F]/45 border-[0.5px] border-[#1F6F5F]/40';
-    if (level === 'FIRST_QUARTILE' || level === '1') return 'bg-[#1F6F5F]/20 border-[0.5px] border-[#1F6F5F]/30';
+    if (level === 'FOURTH_QUARTILE' || level === '4') return 'bg-[#0F766E] border-[0.5px] border-[#0F766E]/80';
+    if (level === 'THIRD_QUARTILE' || level === '3') return 'bg-[#1FA187] border-[0.5px] border-[#1FA187]/80';
+    if (level === 'SECOND_QUARTILE' || level === '2') return 'bg-[#66D9B8] border-[0.5px] border-[#66D9B8]/80';
+    if (level === 'FIRST_QUARTILE' || level === '1') return 'bg-[#C7F9E5] border-[0.5px] border-[#66D9B8]/50';
 
-    // Fall back to contributionCount if contributionLevel is NONE, missing, or undefined
+    // Fall back to contributionCount if level is missing/undefined/NONE
     const cnt = typeof count === 'number' ? count : 0;
-    if (cnt > 14) return 'bg-[#1F6F5F] border-[0.5px] border-[#1F6F5F]/80';
-    if (cnt > 7) return 'bg-[#1F6F5F]/75 border-[0.5px] border-[#1F6F5F]/60';
-    if (cnt > 3) return 'bg-[#1F6F5F]/45 border-[0.5px] border-[#1F6F5F]/40';
-    if (cnt > 0) return 'bg-[#1F6F5F]/20 border-[0.5px] border-[#1F6F5F]/30';
+    if (cnt > 14) return 'bg-[#0F766E] border-[0.5px] border-[#0F766E]/80';
+    if (cnt > 7) return 'bg-[#1FA187] border-[0.5px] border-[#1FA187]/80';
+    if (cnt > 3) return 'bg-[#66D9B8] border-[0.5px] border-[#66D9B8]/80';
+    if (cnt > 0) return 'bg-[#C7F9E5] border-[0.5px] border-[#66D9B8]/50';
 
-    return 'bg-slate-100 border-[0.5px] border-[#1F3A5F]/5';
+    return 'bg-[#F3F4F6] border-[0.5px] border-slate-200/60';
   };
 
   const formatTooltip = (day: ContributionDay): string => {
@@ -156,11 +156,11 @@ export function ContributionGrid({ username = '', calendar }: { username?: strin
         <h4 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest">365 Day Contribution Heatmap</h4>
         <div className="flex items-center space-x-2 text-[10px] text-slate-400 font-semibold">
           <span>Less</span>
-          <div className="h-2.5 w-2.5 rounded bg-slate-100 border border-[#1F3A5F]/5" title="No contributions"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/20 border border-[#1F6F5F]/30" title="Low contributions"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/45 border border-[#1F6F5F]/40" title="Medium-Low contributions"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F]/75 border border-[#1F6F5F]/60" title="Medium-High contributions"></div>
-          <div className="h-2.5 w-2.5 rounded bg-[#1F6F5F] border border-[#1F6F5F]/80" title="High contributions"></div>
+          <div className="h-[11px] w-[11px] rounded-[3px] bg-[#F3F4F6] border border-slate-200/60" title="Level 0: No contributions"></div>
+          <div className="h-[11px] w-[11px] rounded-[3px] bg-[#C7F9E5] border border-[#66D9B8]/50" title="Level 1"></div>
+          <div className="h-[11px] w-[11px] rounded-[3px] bg-[#66D9B8] border border-[#66D9B8]/80" title="Level 2"></div>
+          <div className="h-[11px] w-[11px] rounded-[3px] bg-[#1FA187] border border-[#1FA187]/80" title="Level 3"></div>
+          <div className="h-[11px] w-[11px] rounded-[3px] bg-[#0F766E] border border-[#0F766E]/80" title="Level 4"></div>
           <span>More</span>
         </div>
       </div>
@@ -177,7 +177,7 @@ export function ContributionGrid({ username = '', calendar }: { username?: strin
               {week.contributionDays.map((day, dIndex) => (
                 <div 
                   key={day.date || dIndex}
-                  className={`h-2.5 w-2.5 rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${getIntensityClass(day.contributionLevel, day.contributionCount)}`}
+                  className={`h-[11px] w-[11px] rounded-[3px] transition-all duration-200 ease-in-out hover:scale-[1.15] hover:shadow-md hover:z-10 cursor-pointer ${getIntensityClass(day.contributionLevel, day.contributionCount)}`}
                   title={formatTooltip(day)}
                 ></div>
               ))}
