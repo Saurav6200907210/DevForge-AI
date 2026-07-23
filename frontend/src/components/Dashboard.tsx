@@ -74,76 +74,74 @@ function GitHubStatsCard({ username }: { username: string }) {
   const streakUrl = `https://streak-stats.demolab.com?user=${encodeURIComponent(cleanUsername)}&theme=tokyonight&hide_border=true`;
   const graphUrl = `https://github-readme-activity-graph.vercel.app/graph?username=${encodeURIComponent(cleanUsername)}&theme=tokyo-night&hide_border=true`;
 
+  if (statsError && streakError && graphError) {
+    return null;
+  }
+
+  const showStats = !statsError;
+  const showStreak = !streakError;
+  const showGraph = !graphError;
+
   return (
     <div className="bg-white border border-[#1F3A5F]/5 rounded-3xl p-6 shadow-sm space-y-6 text-left">
       <h3 className="text-xs font-bold text-[#1F3A5F] uppercase tracking-widest border-b border-slate-100 pb-3">
         GitHub Statistics
       </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center justify-center">
-        {/* GitHub Stats Card */}
-        <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
-          {statsLoading && !statsError && (
-            <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
-              Loading GitHub Stats...
+      {(showStats || showStreak) && (
+        <div className={`grid grid-cols-1 ${showStats && showStreak ? 'lg:grid-cols-2' : ''} gap-6 items-center justify-center`}>
+          {/* GitHub Stats Card */}
+          {showStats && (
+            <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+              {statsLoading && (
+                <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+                  Loading GitHub Stats...
+                </div>
+              )}
+              <img 
+                src={statsUrl} 
+                alt={`${cleanUsername} GitHub Stats`} 
+                className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${statsLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+                onLoad={() => setStatsLoading(false)}
+                onError={() => {
+                  setStatsLoading(false);
+                  setStatsError(true);
+                }}
+              />
             </div>
           )}
-          {statsError ? (
-            <div className="py-12 text-center text-xs text-slate-400 font-semibold">
-              GitHub statistics unavailable.
-            </div>
-          ) : (
-            <img 
-              src={statsUrl} 
-              alt={`${cleanUsername} GitHub Stats`} 
-              className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${statsLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
-              onLoad={() => setStatsLoading(false)}
-              onError={() => {
-                setStatsLoading(false);
-                setStatsError(true);
-              }}
-            />
-          )}
-        </div>
 
-        {/* GitHub Streak Card */}
-        <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
-          {streakLoading && !streakError && (
-            <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
-              Loading GitHub Streak...
+          {/* GitHub Streak Card */}
+          {showStreak && (
+            <div className="flex flex-col items-center justify-center min-h-[195px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+              {streakLoading && (
+                <div className="w-full h-44 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+                  Loading GitHub Streak...
+                </div>
+              )}
+              <img 
+                src={streakUrl} 
+                alt={`${cleanUsername} GitHub Streak`} 
+                className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${streakLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
+                onLoad={() => setStreakLoading(false)}
+                onError={() => {
+                  setStreakLoading(false);
+                  setStreakError(true);
+                }}
+              />
             </div>
-          )}
-          {streakError ? (
-            <div className="py-12 text-center text-xs text-slate-400 font-semibold">
-              GitHub statistics unavailable.
-            </div>
-          ) : (
-            <img 
-              src={streakUrl} 
-              alt={`${cleanUsername} GitHub Streak`} 
-              className={`max-w-full h-auto rounded-xl transition-opacity duration-300 ${streakLoading ? 'opacity-0 absolute' : 'opacity-100'}`}
-              onLoad={() => setStreakLoading(false)}
-              onError={() => {
-                setStreakLoading(false);
-                setStreakError(true);
-              }}
-            />
           )}
         </div>
-      </div>
+      )}
 
       {/* GitHub Activity Graph Card */}
-      <div className="w-full flex flex-col items-center justify-center min-h-[220px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
-        {graphLoading && !graphError && (
-          <div className="w-full h-52 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
-            Loading GitHub Activity Graph...
-          </div>
-        )}
-        {graphError ? (
-          <div className="py-12 text-center text-xs text-slate-400 font-semibold">
-            GitHub activity graph unavailable.
-          </div>
-        ) : (
+      {showGraph && (
+        <div className="w-full flex flex-col items-center justify-center min-h-[220px] bg-[#090D16]/5 rounded-2xl p-3 relative overflow-hidden border border-[#1F3A5F]/5">
+          {graphLoading && (
+            <div className="w-full h-52 bg-slate-100 animate-pulse rounded-xl flex items-center justify-center text-xs text-slate-400 font-semibold">
+              Loading GitHub Activity Graph...
+            </div>
+          )}
           <img 
             src={graphUrl} 
             alt={`${cleanUsername} GitHub Activity Graph`} 
@@ -154,8 +152,8 @@ function GitHubStatsCard({ username }: { username: string }) {
               setGraphError(true);
             }}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
