@@ -260,20 +260,20 @@ export default function LandingPage({ onAnalyze, loading, error }: LandingPagePr
       <div className="absolute bottom-[10%] left-[-5%] w-[40%] h-[40%] bg-[#1F3A5F]/5 rounded-full blur-[140px] pointer-events-none"></div>
 
       {/* Landing Navigation Header */}
-      <header className="h-20 px-6 md:px-12 flex items-center justify-between bg-[#1F3A5F] sticky top-0 z-40 shadow-lg shadow-[#1F3A5F]/20">
+      <header className="h-20 border-b border-[#1F3A5F]/10 px-6 md:px-12 flex items-center justify-between bg-[#F8FAF7] backdrop-blur-xl sticky top-0 z-40">
         <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-[#1F6F5F] to-[#2B9A85] flex items-center justify-center shadow-md">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-[#1F6F5F] to-[#1F3A5F] flex items-center justify-center shadow-sm shadow-[#1F6F5F]/10">
             <Terminal className="h-5 w-5 text-white" />
           </div>
           <div>
-            <span className="font-extrabold text-xl tracking-tight text-white">DevForge <span className="text-[#2B9A85]">AI</span></span>
-            <span className="text-[10px] text-[#C8A96A] ml-1.5 font-bold border border-[#C8A96A]/30 px-1.5 py-0.5 rounded-full bg-[#C8A96A]/10">AGENTIC V2</span>
+            <span className="font-extrabold text-xl tracking-tight text-[#1F3A5F]">DevForge <span className="text-[#1F6F5F]">AI</span></span>
+            <span className="text-[10px] text-[#C8A96A] ml-1.5 font-bold border border-[#C8A96A]/30 px-1.5 py-0.5 rounded-full bg-[#C8A96A]/5">AGENTIC V2</span>
           </div>
         </div>
 
         <a 
           href="#analyzer-form"
-          className="hidden sm:flex items-center space-x-2 bg-[#2B9A85] hover:bg-[#1F6F5F] text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all shadow-sm transform active:scale-95"
+          className="hidden sm:flex items-center space-x-2 bg-[#1F6F5F] hover:bg-[#1F6F5F]/90 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all shadow-sm shadow-[#1F6F5F]/10 transform active:scale-95"
         >
           <span>Create My Profile</span>
           <ArrowRight className="h-4 w-4" />
