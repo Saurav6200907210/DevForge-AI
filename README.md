@@ -1,174 +1,1614 @@
 <div align="center">
-  <img src="./public/landingpage.png" alt="DevForge AI Hero" width="800"/>
 
-  # 🚀 DevForge AI
-  **Developer Career Intelligence Platform**
+<img src="./public/landingpage.png" alt="DevForge AI Banner" width="100%"/>
 
-  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-  [![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)](https://expressjs.com/)
-  [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-  [![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+# 🚀 DevForge AI
 
-  *A premium, production-level, full-stack SaaS platform designed to accelerate developer careers through AI.*
+### AI-Powered Developer Career Intelligence Platform
+
+<p align="center">
+
+<img src="https://img.shields.io/badge/Version-1.0-blue?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Status-Production-success?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/Open%20Source-Yes-brightgreen?style=for-the-badge"/>
+<img src="https://img.shields.io/github/license/Saurav6200907210/DevForge-AI?style=for-the-badge"/>
+<img src="https://img.shields.io/github/stars/Saurav6200907210/DevForge-AI?style=for-the-badge"/>
+<img src="https://img.shields.io/github/forks/Saurav6200907210/DevForge-AI?style=for-the-badge"/>
+<img src="https://img.shields.io/github/issues/Saurav6200907210/DevForge-AI?style=for-the-badge"/>
+<img src="https://img.shields.io/github/last-commit/Saurav6200907210/DevForge-AI?style=for-the-badge"/>
+
+</p>
+
+---
+
+### 💻 Built With
+
+<p align="center">
+
+<img src="https://skillicons.dev/icons?i=react,typescript,nodejs,express,vite,tailwind,docker,github,git,vscode&perline=10"/>
+
+</p>
+
+---
+
+### 🌟 Overview
+
+**DevForge AI** is a modern **AI-powered Full Stack Developer Intelligence Platform**
+that analyzes GitHub profiles, evaluates repositories, generates ATS-friendly resumes,
+creates professional developer portfolios, provides repository insights, and helps developers
+become job-ready through AI-driven recommendations.
+
+Designed with a production-ready architecture using **React, TypeScript, Node.js, Express,
+Docker, Tailwind CSS, and Google Gemini AI**, DevForge AI provides everything a developer
+needs to build an impressive professional presence.
+
 </div>
 
 ---
 
-## ✨ Overview
+# ✨ Features
 
-DevForge AI deeply analyzes your GitHub repositories, coding frequency, DevOps footprint, and documentation quality. It dynamically generates ATS-optimized resumes, creates professional portfolio websites, calculates job description match scorecards, and prepares technical interview guides.
+## 🤖 AI Powered
 
-### 📸 Features Preview
-
-| Portfolio Builder | AI Resume Builder | Repository Analytics |
-| :---: | :---: | :---: |
-| <img src="./public/portfilio.png" width="250"/> | <img src="./public/airesumerbuilder.png" width="250"/> | <img src="./public/repositoryanalytic.png" width="250"/> |
+- 🧠 AI GitHub Repository Analysis
+- 📄 AI Resume Builder
+- 🌐 AI Portfolio Generator
+- 🎯 ATS Resume Optimization
+- 💼 Job Description Match Score
+- 🛣 Personalized Career Roadmap
+- 📈 AI Skill Analysis
+- ⚡ Smart Recommendations
 
 ---
 
-## 🏗️ Architecture Flow
+## 📊 Analytics
 
-Here is the colorful high-level architecture diagram showing how the frontend, backend, database, and AI interact.
+- GitHub Repository Insights
+- Commit Activity
+- Repository Health Score
+- Code Quality Analysis
+- Language Distribution
+- Technology Detection
+- Contribution Statistics
+- Open Source Score
+
+---
+
+## 👨‍💻 Developer Tools
+
+- Resume Editor
+- Portfolio Builder
+- Repository Explorer
+- Career Dashboard
+- Profile Management
+- Skill Timeline
+- Progress Tracking
+- Deployment Simulator
+
+---
+
+## 🚀 Production Features
+
+- Authentication System
+- REST API
+- Docker Support
+- Responsive Design
+- Dark Mode UI
+- Modern Dashboard
+- Modular Architecture
+- AI Integration
+- Local Database
+- API Driven Design
+
+---
+
+# 📸 Application Preview
+
+<div align="center">
+
+## 🌍 Landing Page
+
+<img src="./public/landingpage.png" width="900"/>
+
+Modern SaaS landing page with glassmorphism UI and responsive layout.
+
+---
+
+## 👨‍💻 Developer Dashboard
+
+<img src="./public/developerprofile.png" width="900"/>
+
+Personalized dashboard showing developer statistics, skills and AI insights.
+
+---
+
+## 📊 Advanced Analytics Dashboard
+
+<img src="./public/developerprofile2.png" width="900"/>
+
+Detailed GitHub analytics, repository metrics and career intelligence.
+
+---
+
+## 📁 Repository Explorer
+
+<img src="./public/repositoryExplorer.png" width="900"/>
+
+Explore repositories with technology stack, activity and health metrics.
+
+---
+
+## 📈 Repository Analytics
+
+<img src="./public/repositoryanalytic.png" width="900"/>
+
+AI-powered repository analysis with performance indicators and recommendations.
+
+---
+
+## 📄 AI Resume Builder
+
+<img src="./public/airesumerbuilder.png" width="900"/>
+
+Automatically generate ATS-friendly professional resumes using AI.
+
+---
+
+## 🌐 Portfolio Builder
+
+<img src="./public/portfolio.png" width="900"/>
+
+Generate beautiful developer portfolios in seconds.
+
+---
+
+## 🎯 Career Timeline
+
+<img src="./public/milestonetimeline.png" width="900"/>
+
+Visual roadmap helping developers reach their career goals.
+
+</div>
+
+---
+
+# 🛠 Tech Stack
+
+| Category | Technologies |
+|-----------|--------------|
+| Frontend | React, TypeScript, Vite, Tailwind CSS |
+| Backend | Node.js, Express.js |
+| AI | Google Gemini AI |
+| Database | Local JSON Database |
+| API | REST API |
+| Styling | Tailwind CSS |
+| Charts | SVG Components |
+| Authentication | Express Authentication |
+| Deployment | Docker, Docker Compose |
+| Version Control | Git & GitHub |
+
+---
+
+# ⭐ Core Modules
+
+| Module | Description |
+|---------|-------------|
+| 🔍 GitHub Analyzer | Analyze repositories, commits and technologies |
+| 📄 Resume Builder | Generate ATS-friendly resumes |
+| 🌐 Portfolio Builder | Create developer portfolios |
+| 📈 Repository Analytics | AI-powered repository insights |
+| 🎯 Job Match Engine | Match resume against job descriptions |
+| 📊 Dashboard | Developer productivity dashboard |
+| 🤖 AI Recommendation Engine | Personalized improvement suggestions |
+| 🚀 Deployment Simulator | Simulated deployment logs |
+
+---
+
+# 🎯 Why DevForge AI?
+
+✅ Modern UI
+
+✅ AI Powered
+
+✅ ATS Resume Generator
+
+✅ Portfolio Builder
+
+✅ GitHub Intelligence
+
+✅ Career Analytics
+
+✅ Developer Dashboard
+
+✅ Production Ready Architecture
+
+✅ Docker Support
+
+✅ REST API
+
+✅ Responsive Design
+
+✅ Open Source
+
+---
+
+> **Empowering Developers with Artificial Intelligence 🚀**
+
+---
+
+# 🏗️ System Architecture
+
+> DevForge AI follows a modern client-server architecture with AI-powered services.
+
+```mermaid
+flowchart LR
+
+%% Colors
+classDef user fill:#ef4444,color:#fff,stroke:#991b1b,stroke-width:3px;
+classDef frontend fill:#3b82f6,color:#fff,stroke:#1d4ed8,stroke-width:3px;
+classDef backend fill:#10b981,color:#fff,stroke:#047857,stroke-width:3px;
+classDef database fill:#f59e0b,color:#fff,stroke:#b45309,stroke-width:3px;
+classDef ai fill:#8b5cf6,color:#fff,stroke:#5b21b6,stroke-width:3px;
+classDef deploy fill:#06b6d4,color:#fff,stroke:#0e7490,stroke-width:3px;
+
+U((👨‍💻 Developer)):::user
+
+subgraph Frontend
+L[Landing Page]
+D[Dashboard]
+R[Resume Builder]
+P[Portfolio Builder]
+A[Repository Analytics]
+E[Repository Explorer]
+end
+
+subgraph Backend
+API[Express API]
+AUTH[Authentication]
+ANA[GitHub Analyzer]
+RES[Resume Engine]
+PORT[Portfolio Engine]
+JOB[Job Match Engine]
+end
+
+subgraph AI
+GEM[Google Gemini AI]
+RULE[Local AI Engine]
+end
+
+subgraph Database
+DB[(db.json)]
+end
+
+subgraph Deployment
+DOC[Docker]
+COMP[Docker Compose]
+NG[Nginx]
+end
+
+U --> L
+L --> D
+D --> API
+
+API --> AUTH
+API --> ANA
+API --> RES
+API --> PORT
+API --> JOB
+
+ANA --> GEM
+RES --> GEM
+PORT --> GEM
+
+GEM --> RULE
+
+AUTH --> DB
+ANA --> DB
+RES --> DB
+PORT --> DB
+JOB --> DB
+
+API --> DOC
+DOC --> COMP
+COMP --> NG
+
+class U user
+class L,D,R,P,A,E frontend
+class API,AUTH,ANA,RES,PORT,JOB backend
+class DB database
+class GEM,RULE ai
+class DOC,COMP,NG deploy
+```
+
+---
+
+# 🌈 Complete Request Flow
+
+```mermaid
+sequenceDiagram
+
+actor Developer
+
+participant React Frontend
+participant Express API
+participant GitHub API
+participant Gemini AI
+participant Database
+
+Developer->>React Frontend: Enter GitHub Username
+
+React Frontend->>Express API: Analyze Request
+
+Express API->>GitHub API: Fetch Repository Data
+
+GitHub API-->>Express API: Repository Information
+
+Express API->>Gemini AI: AI Analysis
+
+Gemini AI-->>Express API: Resume + Portfolio + Suggestions
+
+Express API->>Database: Save User
+
+Database-->>Express API: Success
+
+Express API-->>React Frontend: Complete Analysis
+
+React Frontend-->>Developer: Dashboard
+```
+
+---
+
+# 🚀 User Journey
+
+```mermaid
+flowchart TD
+
+A[👤 User Login]
+
+A --> B[Dashboard]
+
+B --> C[GitHub Analysis]
+
+C --> D[AI Processing]
+
+D --> E[Repository Insights]
+
+D --> F[Resume Builder]
+
+D --> G[Portfolio Builder]
+
+D --> H[Job Match]
+
+H --> I[Career Roadmap]
+
+I --> J[Deploy Portfolio]
+
+J --> K[Success]
+```
+
+---
+
+# 🤖 AI Processing Pipeline
+
+```mermaid
+flowchart LR
+
+GitHubProfile --> RepositoryData
+
+RepositoryData --> AIEngine
+
+AIEngine --> Resume
+
+AIEngine --> Portfolio
+
+AIEngine --> Analytics
+
+AIEngine --> Suggestions
+
+Suggestions --> Dashboard
+```
+
+---
+
+# ⚙️ Deployment Architecture
+
+```mermaid
+flowchart LR
+
+Developer
+
+Developer --> GitHub
+
+GitHub --> Docker
+
+Docker --> DockerCompose
+
+DockerCompose --> Frontend
+
+DockerCompose --> Backend
+
+Backend --> Database
+
+Backend --> GeminiAI
+
+Frontend --> Browser
+```
+
+---
+
+# 📂 Project Structure
+
+```text
+DevForge-AI
+│
+├── 📂 backend
+│   │
+│   ├── 📂 routes
+│   │     ├── auth.js
+│   │     ├── analyze.js
+│   │     ├── resumes.js
+│   │     └── portfolios.js
+│   │
+│   ├── 📂 data
+│   │     └── db.json
+│   │
+│   ├── db.js
+│   ├── server.js
+│   ├── package.json
+│   └── Dockerfile
+│
+├── 📂 frontend
+│   │
+│   ├── 📂 public
+│   │     ├── landingpage.png
+│   │     ├── developerprofile.png
+│   │     ├── developerprofile2.png
+│   │     ├── repositoryExplorer.png
+│   │     ├── repositoryanalytic.png
+│   │     ├── portfolio.png
+│   │     ├── airesumerbuilder.png
+│   │     └── milestonetimeline.png
+│   │
+│   ├── 📂 src
+│   │     ├── components
+│   │     ├── pages
+│   │     ├── hooks
+│   │     ├── services
+│   │     ├── App.tsx
+│   │     └── main.tsx
+│   │
+│   ├── package.json
+│   └── Dockerfile
+│
+├── docker-compose.yml
+├── package.json
+├── README.md
+└── LICENSE
+```
+
+---
+
+# 🏛 ASCII Architecture
+
+```text
+
+                     ┌────────────────────────────┐
+                     │      👨‍💻 Developer          │
+                     └─────────────┬──────────────┘
+                                   │
+                                   ▼
+               ┌──────────────────────────────────┐
+               │        React + Vite Frontend     │
+               │──────────────────────────────────│
+               │ Landing Page                     │
+               │ Dashboard                        │
+               │ Resume Builder                   │
+               │ Portfolio Builder                │
+               │ Analytics                        │
+               └──────────────┬───────────────────┘
+                              │ REST API
+                              ▼
+              ┌──────────────────────────────────┐
+              │         Express Backend          │
+              │──────────────────────────────────│
+              │ Authentication                  │
+              │ GitHub Analyzer                 │
+              │ Resume Engine                   │
+              │ Portfolio Generator             │
+              │ Job Match                       │
+              └──────────────┬───────────────────┘
+                             │
+           ┌─────────────────┼─────────────────┐
+           ▼                 ▼                 ▼
+    ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+    │ GitHub API   │  │ Gemini AI    │  │ Local DB     │
+    └──────────────┘  └──────────────┘  └──────────────┘
+                             │
+                             ▼
+                Resume • Portfolio • Analytics
+```
+
+---
+
+# 📦 Component Interaction
 
 ```mermaid
 graph TD
-    %% Colorful Styling
-    classDef frontend fill:#3b82f6,stroke:#1d4ed8,stroke-width:3px,color:#fff,rx:10px,ry:10px;
-    classDef backend fill:#10b981,stroke:#047857,stroke-width:3px,color:#fff,rx:10px,ry:10px;
-    classDef database fill:#f59e0b,stroke:#b45309,stroke-width:3px,color:#fff,rx:10px,ry:10px;
-    classDef aibox fill:#8b5cf6,stroke:#5b21b6,stroke-width:3px,color:#fff,rx:10px,ry:10px;
-    classDef user fill:#ef4444,stroke:#b91c1c,stroke-width:3px,color:#fff,rx:100px,ry:100px;
 
-    User((🧑‍💻 Developer)):::user
-    Client[💻 Web Client<br/>React + Vite]:::frontend
-    Gateway[🌐 API Gateway<br/>Express.js]:::backend
-    
-    subgraph Core Services
-        Auth[🔐 Auth Service]:::backend
-        Analysis[🧠 GitHub Analyzer]:::backend
-        ResumeGen[📄 AI Resume Generator]:::backend
-        PortfolioGen[🚀 Portfolio Builder]:::backend
-    end
+Frontend --> Backend
 
-    DB[(💾 Local JSON DB<br/>db.json)]:::database
-    Gemini[🤖 Google Gemini AI<br/>Expert Engine]:::aibox
+Backend --> Authentication
 
-    User -->|Interacts| Client
-    Client -->|HTTP REST| Gateway
-    Gateway --> Auth
-    Gateway --> Analysis
-    Gateway --> ResumeGen
-    Gateway --> PortfolioGen
+Backend --> GitHubAnalyzer
 
-    Auth <--> DB
-    Analysis <--> DB
-    ResumeGen <--> DB
-    PortfolioGen <--> DB
+Backend --> ResumeBuilder
 
-    Analysis -.->|GitHub API Data| Gemini
-    ResumeGen -.->|Prompts + Data| Gemini
-    Gemini -.->|AI Insights| Analysis
+Backend --> PortfolioBuilder
+
+Backend --> AnalyticsEngine
+
+GitHubAnalyzer --> GitHubAPI
+
+ResumeBuilder --> Gemini
+
+PortfolioBuilder --> Gemini
+
+AnalyticsEngine --> Database
+
+Gemini --> Dashboard
+
+Database --> Dashboard
 ```
 
 ---
 
-## 🛠️ Technology Stack
+# 🔄 Data Flow
 
-- **Frontend**: React + TypeScript, Vite, Tailwind CSS, Framer Motion, pure SVG animated visualizers (Doughnut dial, skills graph, heatmaps).
-- **Backend**: Node.js + Express.js, fs-extra SQLite-like local persistence engine (`data/db.json`), axios integrations.
-- **Docker Support**: Individual multi-stage Dockerfiles and dynamic orchestrator (`docker-compose.yml`).
-- **AI Integrations**: Ready for Google Gemini API, with a robust local expert rule-based AI engine fallback guaranteeing 100% uptime.
+```mermaid
+flowchart TD
+
+User
+
+User --> Login
+
+Login --> Dashboard
+
+Dashboard --> Analyze
+
+Analyze --> GitHub
+
+GitHub --> Backend
+
+Backend --> AI
+
+AI --> Database
+
+Database --> Dashboard
+
+Dashboard --> Resume
+
+Dashboard --> Portfolio
+
+Dashboard --> Analytics
+```
 
 ---
 
-## 📂 Codebase Architecture
+## 📌 Architecture Highlights
+
+- ⚡ React + Vite Frontend
+- 🚀 Express.js Backend
+- 🤖 Google Gemini AI Integration
+- 📊 GitHub Repository Intelligence
+- 📄 ATS Resume Generator
+- 🌐 Portfolio Generator
+- 🎯 Job Match Engine
+- 💾 Local JSON Database
+- 🐳 Dockerized Deployment
+- 📈 Production Ready Modular Architecture
+
+---
+---
+
+# ⚡ Getting Started
+
+Follow these steps to set up **DevForge AI** on your local machine.
+
+---
+
+# 📋 Prerequisites
+
+Before running the project, ensure the following software is installed:
+
+| Software | Version |
+|----------|----------|
+| Node.js | >=18.x |
+| npm | >=9.x |
+| Git | Latest |
+| Docker | Latest (Optional) |
+| Docker Compose | Latest (Optional) |
+| VS Code | Recommended |
+
+---
+
+# 📥 Clone Repository
+
+```bash
+git clone https://github.com/Saurav6200907210/DevForge-AI.git
+
+cd DevForge-AI
+```
+
+---
+
+# 📦 Install Dependencies
+
+Install root dependencies
+
+```bash
+npm install
+```
+
+Install frontend
+
+```bash
+cd frontend
+
+npm install
+```
+
+Install backend
+
+```bash
+cd ../backend
+
+npm install
+```
+
+Return to root
+
+```bash
+cd ..
+```
+
+---
+
+# ▶️ Start Development
+
+Run Frontend
+
+```bash
+cd frontend
+
+npm run dev
+```
+
+Runs on
+
+```
+http://localhost:5173
+```
+
+---
+
+Run Backend
+
+```bash
+cd backend
+
+npm run dev
+```
+
+Runs on
+
+```
+http://localhost:5000
+```
+
+---
+
+# 🚀 Run Everything Together
+
+```bash
+npm run dev
+```
+
+or
+
+```bash
+npm run start-all
+```
+
+---
+
+# 🌍 Environment Variables
+
+Create
+
+```
+backend/.env
+```
+
+Example
+
+```env
+PORT=5000
+
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+JWT_SECRET=your_super_secret_key
+
+DATABASE_PATH=data/db.json
+
+NODE_ENV=development
+```
+
+---
+
+# 📂 Folder Structure
+
+```
+backend
+│
+├── data
+│     └── db.json
+│
+├── routes
+│
+├── server.js
+│
+├── db.js
+│
+└── .env
+```
+
+---
+
+# 🐳 Docker Setup
+
+Build Docker Images
+
+```bash
+docker compose build
+```
+
+Run Containers
+
+```bash
+docker compose up
+```
+
+Detached Mode
+
+```bash
+docker compose up -d
+```
+
+Stop Containers
+
+```bash
+docker compose down
+```
+
+Rebuild
+
+```bash
+docker compose up --build
+```
+
+Check Running Containers
+
+```bash
+docker ps
+```
+
+View Logs
+
+```bash
+docker compose logs
+```
+
+---
+
+# 📡 REST API Documentation
+
+## Authentication
+
+### Register/Login
+
+```
+POST /api/auth/login
+```
+
+Example
+
+```json
+{
+  "github":"Saurav6200907210"
+}
+```
+
+---
+
+### Get User
+
+```
+GET /api/auth/profile/:github
+```
+
+---
+
+# GitHub Analysis
+
+### Analyze Repository
+
+```
+POST /api/analyze
+```
+
+Body
+
+```json
+{
+  "github":"Saurav6200907210"
+}
+```
+
+Returns
+
+- Repository Analysis
+- AI Suggestions
+- Skills
+- Score
+- Resume Data
+- Portfolio Data
+
+---
+
+# Resume APIs
+
+Get Resume
+
+```
+GET /api/resumes/:id
+```
+
+Update Resume
+
+```
+PUT /api/resumes/:id
+```
+
+Improve Resume
+
+```
+POST /api/resumes/:id/improve
+```
+
+Match Job Description
+
+```
+POST /api/resumes/:id/match-job
+```
+
+---
+
+# Portfolio APIs
+
+Get Portfolio
+
+```
+GET /api/portfolios/:id
+```
+
+Update Portfolio
+
+```
+PUT /api/portfolios/:id
+```
+
+Deploy Portfolio
+
+```
+POST /api/portfolios/:id/deploy
+```
+
+Push Repository
+
+```
+POST /api/portfolios/:id/push-repo
+```
+
+---
+
+# 📦 API Response Example
+
+```json
+{
+  "success": true,
+  "score": 91,
+  "repositories": 34,
+  "skills": [
+    "React",
+    "Node.js",
+    "Docker",
+    "TypeScript"
+  ],
+  "recommendations": [
+    "Improve README",
+    "Increase Testing",
+    "Add CI/CD"
+  ]
+}
+```
+
+---
+
+# 📜 Available Scripts
+
+Root
+
+```bash
+npm run dev
+```
+
+Starts frontend + backend
+
+---
+
+Frontend
+
+```bash
+npm run dev
+```
+
+Development Server
+
+```bash
+npm run build
+```
+
+Production Build
+
+```bash
+npm run preview
+```
+
+Preview Build
+
+---
+
+Backend
+
+```bash
+npm run dev
+```
+
+Development Mode
+
+```bash
+npm start
+```
+
+Production Mode
+
+---
+
+# ⚙️ Configuration
+
+| Variable | Description |
+|------------|-----------------------------|
+| PORT | Backend Port |
+| GEMINI_API_KEY | Google Gemini API |
+| JWT_SECRET | Authentication Secret |
+| DATABASE_PATH | JSON Database |
+| NODE_ENV | Development/Production |
+
+---
+
+# ☁️ Deployment
+
+## Frontend
+
+- Cloudflare Pages
+- Vercel
+- Netlify
+
+---
+
+## Backend
+
+- Render
+- Railway
+- Fly.io
+
+---
+
+## Container Deployment
+
+```bash
+docker compose up -d
+```
+
+---
+
+# 🔐 Authentication Flow
 
 ```text
-📦 DevForge AI
-├── 📂 backend
-│   ├── 📂 data
-│   │   └── 📄 db.json               # Local JSON Database
-│   ├── 📂 routes
-│   │   ├── 📄 auth.js               # Auth & registration API
-│   │   ├── 📄 analyze.js            # GitHub Intelligence & AI generation
-│   │   ├── 📄 resumes.js            # Resume updates & Job comparator
-│   │   └── 📄 portfolios.js         # Portfolios & Deploy logs simulator
-│   ├── 📄 .env                      # API keys & ports
-│   ├── 📄 db.js                     # Local database controllers
-│   ├── 📄 server.js                 # Express server boots
-│   └── 🐳 Dockerfile                # Backend container script
-├── 📂 frontend
-│   ├── 📂 src
-│   │   ├── 📂 components
-│   │   │   ├── 📄 LandingPage.tsx   # Premium dark-mode signup
-│   │   │   ├── 📄 Dashboard.tsx     # SaaS command center
-│   │   │   ├── 📄 ResumeEditor.tsx  # Interactive resume builder & PDF export
-│   │   │   ├── 📄 LivePreview.tsx   # Browser portfolio simulator & Vercel builds
-│   │   │   └── 📄 CustomChart.tsx   # Custom animated SVG graphs
-│   │   ├── 📄 App.tsx               # Session gate controller
-│   │   ├── 📄 api.ts                # Unified Axios REST client
-│   │   ├── 📄 index.css             # Tailwind rules & glassmorphic custom layers
-│   │   └── 📄 main.tsx              # React mounting root
-│   ├── 📄 index.html                # Google Fonts & SEO tags
-│   ├── 📄 tailwind.config.js        # Accent neon palettes
-│   └── 🐳 Dockerfile                # Production Nginx multi-stage build script
-├── 🐳 docker-compose.yml            # Container orchestration mapping
-├── 📄 package.json                  # Monorepo concurrent scripts
-└── 🚀 start-all.js                  # Cross-platform startup bootstrapper
+User
+
+↓
+
+Login
+
+↓
+
+GitHub Username
+
+↓
+
+Backend Validation
+
+↓
+
+User Created
+
+↓
+
+Session Started
+
+↓
+
+Dashboard
 ```
 
 ---
 
-## ⚡ Setup & Run
+# 📊 API Workflow
 
-### Option A: Standard Local Run (Recommended)
+```text
+Frontend
 
-1. **Install all dependencies**:
-   ```bash
-   npm run install-all
-   ```
-2. **Launch the ecosystem**:
-   ```bash
-   npm run dev
-   ```
-3. **Open the browser**:
-   - Web Client: [http://localhost:5173](http://localhost:5173)
-   - API Backend: [http://localhost:5000](http://localhost:5000)
+↓
 
-### Option B: Docker Containers
+REST API
 
-To spin up both applications in isolated sandboxes:
+↓
+
+GitHub API
+
+↓
+
+Gemini AI
+
+↓
+
+Repository Analysis
+
+↓
+
+Resume Generation
+
+↓
+
+Portfolio Generation
+
+↓
+
+Database
+
+↓
+
+Dashboard
+```
+
+---
+
+# 💻 Local Development Workflow
+
+```
+Git Clone
+
+↓
+
+Install Dependencies
+
+↓
+
+Setup .env
+
+↓
+
+Run Backend
+
+↓
+
+Run Frontend
+
+↓
+
+Open Browser
+
+↓
+
+Analyze GitHub Profile
+
+↓
+
+Generate Resume
+
+↓
+
+Generate Portfolio
+```
+
+---
+
+# 🧪 Testing
+
+Run Backend
+
 ```bash
-docker-compose up --build
+npm run dev
 ```
-- Client App: [http://localhost:5173](http://localhost:5173)
-- API Services: [http://localhost:5000](http://localhost:5000)
+
+Test API
+
+```
+http://localhost:5000/api/auth/login
+```
+
+Open Frontend
+
+```
+http://localhost:5173
+```
 
 ---
 
-## 📡 REST API Reference
+# 📈 Performance
 
-### 🔐 Authentication (`/api/auth`)
-- `POST /login` - Dynamic login/registration; auto-creates user profiles upon first GitHub link.
-- `GET /profile/:github` - Retrieves hydrated user stats.
+✔ Fast React Rendering
 
-### 🧠 GitHub Analysis (`/api/analyze`)
-- `POST /` - GitHub Deep Intelligence Engine pulls public repository metadata and triggers Gemini/Mock AI to construct resumes and portfolios.
+✔ TypeScript Safety
 
-### 📄 AI Resumes (`/api/resumes`)
-- `PUT /:id` - Saves customized resume content.
-- `POST /:id/improve` - Suggests structural improvements and optimizes text blocks with AI.
-- `POST /:id/match-job` - Pastes any target Job Description, returning match score metrics, missing tech list, and custom roadmap projects.
+✔ Docker Ready
 
-### 🌐 Portfolios (`/api/portfolios`)
-- `PUT /:id` - Saves layout customization.
-- `POST /:id/deploy` - Simulates a Vercel deploy, streaming live terminal build logs.
-- `POST /:id/push-repo` - Simulates Git repository push operations.
+✔ REST APIs
 
-<br/>
+✔ Responsive Design
+
+✔ AI Powered
+
+✔ Modular Codebase
+
+✔ Production Architecture
+
+---
+---
+
+# 🌟 Feature Deep Dive
+
+## 🤖 AI GitHub Analyzer
+
+DevForge AI performs an in-depth analysis of public GitHub repositories to generate actionable career insights.
+
+### Features
+
+- Repository Intelligence
+- Technology Detection
+- Language Statistics
+- Repository Health Score
+- Commit Activity Analysis
+- Open Source Contributions
+- Documentation Analysis
+- Project Quality Evaluation
+- Career Recommendations
+
+---
+
+## 📄 AI Resume Builder
+
+Automatically generates professional ATS-friendly resumes.
+
+### Capabilities
+
+- ATS Optimization
+- AI Content Enhancement
+- Resume Scoring
+- Professional Templates
+- PDF Export
+- Experience Suggestions
+- Skills Optimization
+- Achievement Generator
+
+---
+
+## 🌐 Portfolio Builder
+
+Generate beautiful developer portfolios without writing code.
+
+### Includes
+
+- Hero Section
+- About
+- Skills
+- Experience
+- Projects
+- GitHub Integration
+- Contact Section
+- Responsive Design
+
+---
+
+## 🎯 Job Match Engine
+
+Compare resumes with job descriptions.
+
+Provides
+
+- ATS Match Score
+- Missing Skills
+- Keyword Analysis
+- Improvement Suggestions
+- Learning Roadmap
+- Resume Optimization
+
+---
+
+## 📊 Repository Analytics
+
+Displays detailed statistics including
+
+- Stars
+- Forks
+- Issues
+- Pull Requests
+- Languages
+- Contributors
+- Repository Age
+- Activity Timeline
+
+---
+
+# 🚀 Project Roadmap
+
+## ✅ Completed
+
+- Authentication
+- GitHub Analysis
+- Resume Builder
+- Portfolio Builder
+- Repository Explorer
+- Dashboard
+- REST APIs
+- Docker Support
+- Responsive UI
+
+---
+
+## 🚧 In Progress
+
+- AI Chat Assistant
+- PDF Resume Templates
+- Portfolio Themes
+- Better Analytics
+- Performance Improvements
+
+---
+
+## 🔮 Future Plans
+
+- PostgreSQL Support
+- Redis Cache
+- Kubernetes Deployment
+- GitHub OAuth
+- CI/CD Integration
+- AI Interview Simulator
+- Cover Letter Generator
+- Resume Versioning
+- Multi-language Support
+- Team Dashboard
+
+---
+
+# 🔒 Security
+
+Current security practices include
+
+- Environment Variables
+- JWT Authentication
+- Input Validation
+- REST API Architecture
+- Modular Backend
+- Secure Configuration
+- Docker Isolation
+
+Future improvements
+
+- OAuth
+- Rate Limiting
+- HTTPS
+- Refresh Tokens
+- RBAC
+- Secret Manager
+
+---
+
+# 📈 Performance
+
+Current optimizations
+
+- React + Vite
+- Lazy Components
+- Modular Backend
+- Optimized API Calls
+- Responsive Layout
+- SVG Visualizations
+- Fast Local Database
+
+---
+
+# 📊 Technology Overview
+
+| Layer | Technology |
+|--------|------------|
+| Frontend | React + TypeScript |
+| Styling | Tailwind CSS |
+| Backend | Express.js |
+| Runtime | Node.js |
+| AI | Google Gemini |
+| Database | JSON Database |
+| API | REST |
+| Deployment | Docker |
+| Version Control | Git |
+| IDE | VS Code |
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+## Fork Repository
+
+```bash
+git fork
+```
+
+Clone
+
+```bash
+git clone <repository-url>
+```
+
+Create Branch
+
+```bash
+git checkout -b feature/new-feature
+```
+
+Commit
+
+```bash
+git commit -m "Add new feature"
+```
+
+Push
+
+```bash
+git push origin feature/new-feature
+```
+
+Open Pull Request
+
+---
+
+# 📜 Coding Standards
+
+- Clean Code
+- Reusable Components
+- Responsive Design
+- Type Safety
+- REST Standards
+- Meaningful Commit Messages
+- Documentation
+
+---
+
+# 🧪 Development Workflow
+
+```text
+Idea
+
+↓
+
+Planning
+
+↓
+
+Design
+
+↓
+
+Development
+
+↓
+
+Testing
+
+↓
+
+Review
+
+↓
+
+Deployment
+
+↓
+
+Maintenance
+```
+
+---
+
+# 🐳 Docker Workflow
+
+```text
+Developer
+
+↓
+
+Source Code
+
+↓
+
+Docker Build
+
+↓
+
+Docker Image
+
+↓
+
+Docker Compose
+
+↓
+
+Frontend Container
+
+↓
+
+Backend Container
+
+↓
+
+Application Running
+```
+
+---
+
+# 🌍 Deployment Options
+
+| Platform | Status |
+|-----------|---------|
+| Docker | ✅ |
+| Render | ✅ |
+| Railway | ✅ |
+| Vercel | ✅ |
+| Netlify | ✅ |
+| Cloudflare Pages | ✅ |
+
+---
+
+# 📚 Learning Outcomes
+
+By exploring DevForge AI you can learn
+
+- React
+- TypeScript
+- Node.js
+- Express
+- REST APIs
+- Docker
+- AI Integration
+- GitHub APIs
+- Authentication
+- Dashboard Design
+- Modern UI
+- Full Stack Development
+
+---
+
+# 💡 Why DevForge AI?
+
+✔ Modern UI
+
+✔ AI Powered
+
+✔ Full Stack Architecture
+
+✔ ATS Resume Builder
+
+✔ Portfolio Generator
+
+✔ GitHub Intelligence
+
+✔ Career Analytics
+
+✔ Docker Ready
+
+✔ Responsive
+
+✔ Production Inspired
+
+✔ Easy to Deploy
+
+✔ Open Source
+
+---
+
+# 📄 License
+
+Distributed under the **MIT License**.
+
+Feel free to use, modify and contribute.
+
+---
+
+# 🙏 Acknowledgements
+
+Special thanks to
+
+- React Team
+- Vite Team
+- Node.js Community
+- Express.js
+- Tailwind CSS
+- Docker
+- Google Gemini AI
+- GitHub API
+- Open Source Community
+
+---
+
+# ⭐ Support
+
+If you found this project useful
+
+⭐ Star the repository
+
+🍴 Fork the repository
+
+🐛 Report issues
+
+💡 Suggest new features
+
+🤝 Contribute to the project
+
+---
+
+# 📬 Contact
+
+**Developer:** Saurav Kumar
+
+GitHub
+
+```
+https://github.com/Saurav6200907210
+```
+
+---
+
+# 💖 Built For Developers
+
 <div align="center">
-  Built with ❤️ for Developers
-</div>
+
+## 🚀 DevForge AI
+
+### Empowering Developers Through Artificial Intelligence
+
+<img src="https://readme-typing-svg.demolab.com?font=Poppins&weight=600&size=26&duration=3500&pause=1000&center=true&vCenter=true&width=700&lines=AI+Powered+Developer+Platform;GitHub+Career+Intelligence;ATS+Resume+Generator;Portfolio+Builder;Repository+Analytics;Built+with+React+%2B+Node.js+%2B+AI"/>
+
+### ⭐ If you like this project, don't forget to Star the repository!
+
