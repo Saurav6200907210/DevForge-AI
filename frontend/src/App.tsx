@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
+import PublicPortfolio from './components/PublicPortfolio';
 import { api } from './api';
 
 export default function App() {
@@ -61,20 +63,23 @@ export default function App() {
   };
 
   return (
-    <>
-      {profile ? (
-        <Dashboard 
-          profile={profile} 
-          onLogout={handleLogout} 
-          onUpdateProfile={handleUpdateProfile} 
-        />
-      ) : (
-        <LandingPage 
-          onAnalyze={handleAnalyze} 
-          loading={loading} 
-          error={error} 
-        />
-      )}
-    </>
+    <Routes>
+      <Route path="/" element={
+        profile ? (
+          <Dashboard 
+            profile={profile} 
+            onLogout={handleLogout} 
+            onUpdateProfile={handleUpdateProfile} 
+          />
+        ) : (
+          <LandingPage 
+            onAnalyze={handleAnalyze} 
+            loading={loading} 
+            error={error} 
+          />
+        )
+      } />
+      <Route path="/portfolio/:username" element={<PublicPortfolio />} />
+    </Routes>
   );
 }
