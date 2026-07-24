@@ -14,7 +14,7 @@
     "framer-motion": "^11.0.8",
     "lucide-react": "^0.368.0",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6",
+    "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.1"
   },
   "overrides": {
