@@ -66,6 +66,10 @@ export const api = {
     async pushRepo(id: string, repositoryName?: string) {
       const res = await client.post(`/portfolios/${id}/push-repo`, { repositoryName });
       return res.data;
+    },
+    async getPublic(username: string) {
+      const res = await client.get(`/portfolios/public/${username}`);
+      return res.data;
     }
   }
 };
