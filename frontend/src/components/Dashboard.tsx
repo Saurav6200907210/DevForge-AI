@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   BarChart2, 
   FileText, 
@@ -32,7 +33,8 @@ import {
   PinOff,
   Code,
   Zap,
-  Flame
+  Flame,
+  Linkedin
 } from 'lucide-react';
 import ResumeEditor from './ResumeEditor';
 import LivePreview from './LivePreview';
@@ -330,7 +332,18 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ profile, onLogout, onUpdateProfile }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'repos' | 'explorer' | 'timeline' | 'resume' | 'portfolio'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'repos' | 'explorer' | 'timeline' | 'resume' | 'linkedin' | 'portfolio'>(() => {
+    return window.location.pathname === '/linkedin' ? 'linkedin' : 'overview';
+  });
+
+  const handleTabChange = (tab: 'overview' | 'repos' | 'explorer' | 'timeline' | 'resume' | 'linkedin' | 'portfolio') => {
+    setActiveTab(tab);
+    if (tab === 'linkedin') {
+      window.history.pushState(null, '', '/linkedin');
+    } else if (window.location.pathname === '/linkedin') {
+      window.history.pushState(null, '', '/');
+    }
+  };
 
   // Explorer States
   const [searchQuery, setSearchQuery] = useState('');
@@ -561,7 +574,7 @@ const commitsInfo = {
             <div className="h-px bg-slate-100 my-4"></div>
 
             <button 
-              onClick={() => setActiveTab('resume')}
+              onClick={() => handleTabChange('resume')}
               className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
                 activeTab === 'resume' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F6F5F]'
               }`}
@@ -570,15 +583,14 @@ const commitsInfo = {
               <span>AI Resume Builder</span>
             </button>
 
-            <button 
-              onClick={() => setActiveTab('portfolio')}
-              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all ${
-                activeTab === 'portfolio' ? 'bg-[#1F6F5F] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-[#1F6F5F]'
-              }`}
+            <Link 
+              to={`/portfolio/${profile.githubUsername}`}
+              target="_blank"
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl font-bold transition-all text-slate-500 hover:bg-slate-100 hover:text-[#1F6F5F]`}
             >
               <Globe className="h-4 w-4" />
               <span>Web Portfolio</span>
-            </button>
+            </Link>
           </nav>
         </div>
 
@@ -610,7 +622,7 @@ const commitsInfo = {
         
         {/* Top Header navbar banner */}
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#1F3A5F]/5 pb-5">
-          <div className="text-left">
+          <div className="text-left flex-1">
             <div className="flex items-center space-x-2.5">
               <h1 className="text-2xl font-extrabold text-[#1F3A5F]">{profile.fullName}</h1>
               <span className="text-[10px] bg-[#1F6F5F]/5 text-[#1F6F5F] border border-[#1F6F5F]/10 font-bold px-2.5 py-0.8 rounded-full flex items-center space-x-1">
@@ -622,11 +634,30 @@ const commitsInfo = {
           </div>
 
           <div className="flex items-center space-x-3 shrink-0">
+            {/* Public URL Link Copy Button */}
+            <div className="hidden sm:flex items-center bg-[#FAFAF8] border border-[#1F3A5F]/10 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-3 py-2 text-[10px] font-mono text-slate-500 bg-white border-r border-[#1F3A5F]/5 select-all">
+                {window.location.origin}/portfolio/{profile.githubUsername}
+              </div>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/portfolio/${profile.githubUsername}`);
+                  alert('Portfolio URL copied to clipboard!');
+                }}
+                className="px-3 py-2 text-[#1F6F5F] hover:bg-[#1F6F5F]/5 transition-colors flex items-center space-x-1 text-xs font-bold"
+                title="Copy Portfolio Link"
+              >
+                <Copy className="h-3.5 w-3.5" />
+                <span>Copy Link</span>
+              </button>
+            </div>
+
+            <div className="h-10 w-px bg-[#1F3A5F]/10 hidden sm:block mx-1"></div>
+
             <div className="text-right text-xs hidden sm:block">
               <span className="block text-slate-400">Analysis Completed</span>
               <span className="block font-bold text-[#1F3A5F]">{new Date(profile.createdAt).toLocaleDateString()}</span>
             </div>
-            <div className="h-10 w-px bg-[#1F3A5F]/10 hidden sm:block"></div>
             {/* Mobile logout option */}
             <button 
               onClick={onLogout}
