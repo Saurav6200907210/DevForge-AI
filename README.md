@@ -156,7 +156,7 @@ Automatically generate ATS-friendly professional resumes using AI.
 
 ## 🌐 Portfolio Builder
 
-<img src="./public/portfolio.png" width="900"/>
+<img src="./public/portfilio.png" width="900"/>
 
 Generate beautiful developer portfolios in seconds.
 
@@ -506,23 +506,75 @@ class H dashboard
 ```mermaid
 flowchart LR
 
-Developer
+%% =========================
+%% Color Styles
+%% =========================
 
-Developer --> GitHub
+classDef developer fill:#FF4D6D,stroke:#C9184A,color:#ffffff,stroke-width:3px
+classDef github fill:#24292F,stroke:#57606A,color:#ffffff,stroke-width:3px
+classDef docker fill:#2496ED,stroke:#0B63CE,color:#ffffff,stroke-width:3px
+classDef compose fill:#0EA5E9,stroke:#0369A1,color:#ffffff,stroke-width:3px
+classDef frontend fill:#3B82F6,stroke:#1D4ED8,color:#ffffff,stroke-width:3px
+classDef backend fill:#10B981,stroke:#047857,color:#ffffff,stroke-width:3px
+classDef database fill:#F59E0B,stroke:#B45309,color:#ffffff,stroke-width:3px
+classDef ai fill:#8B5CF6,stroke:#6D28D9,color:#ffffff,stroke-width:3px
+classDef browser fill:#22C55E,stroke:#15803D,color:#ffffff,stroke-width:3px
 
-GitHub --> Docker
+%% =========================
+%% Nodes
+%% =========================
 
-Docker --> DockerCompose
+A([👨‍💻 Developer])
 
-DockerCompose --> Frontend
+B([🐙 GitHub])
 
-DockerCompose --> Backend
+C[🐳 Docker Build]
 
-Backend --> Database
+D[📦 Docker Compose]
 
-Backend --> GeminiAI
+E[⚛️ Frontend Container]
 
-Frontend --> Browser
+F[🚀 Backend Container]
+
+G[(💾 Local Database)]
+
+H[🤖 Gemini AI]
+
+I([🌍 Browser])
+
+%% =========================
+%% Connections
+%% =========================
+
+A --> B
+
+B --> C
+
+C --> D
+
+D --> E
+
+D --> F
+
+F --> G
+
+F --> H
+
+E --> I
+
+%% =========================
+%% Apply Colors
+%% =========================
+
+class A developer
+class B github
+class C docker
+class D compose
+class E frontend
+class F backend
+class G database
+class H ai
+class I browser
 ```
 
 ---
@@ -581,108 +633,174 @@ DevForge-AI
 
 # 🏛 ASCII Architecture
 
-```text
-
-                     ┌────────────────────────────┐
-                     │      👨‍💻 Developer          │
-                     └─────────────┬──────────────┘
-                                   │
-                                   ▼
-               ┌──────────────────────────────────┐
-               │        React + Vite Frontend     │
-               │──────────────────────────────────│
-               │ Landing Page                     │
-               │ Dashboard                        │
-               │ Resume Builder                   │
-               │ Portfolio Builder                │
-               │ Analytics                        │
-               └──────────────┬───────────────────┘
-                              │ REST API
-                              ▼
-              ┌──────────────────────────────────┐
-              │         Express Backend          │
-              │──────────────────────────────────│
-              │ Authentication                  │
-              │ GitHub Analyzer                 │
-              │ Resume Engine                   │
-              │ Portfolio Generator             │
-              │ Job Match                       │
-              └──────────────┬───────────────────┘
-                             │
-           ┌─────────────────┼─────────────────┐
-           ▼                 ▼                 ▼
-    ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-    │ GitHub API   │  │ Gemini AI    │  │ Local DB     │
-    └──────────────┘  └──────────────┘  └──────────────┘
-                             │
-                             ▼
-                Resume • Portfolio • Analytics
-```
 
 ---
 
 # 📦 Component Interaction
 
+## 🏛 Backend Service Architecture
+
 ```mermaid
-graph TD
+flowchart LR
 
-Frontend --> Backend
+%% ==========================
+%% Colors
+%% ==========================
 
-Backend --> Authentication
+classDef frontend fill:#3B82F6,stroke:#1D4ED8,color:#ffffff,stroke-width:3px
+classDef backend fill:#10B981,stroke:#047857,color:#ffffff,stroke-width:3px
+classDef service fill:#F59E0B,stroke:#B45309,color:#000000,stroke-width:3px
+classDef external fill:#24292F,stroke:#57606A,color:#ffffff,stroke-width:3px
+classDef ai fill:#8B5CF6,stroke:#6D28D9,color:#ffffff,stroke-width:3px
+classDef db fill:#EF4444,stroke:#B91C1C,color:#ffffff,stroke-width:3px
+classDef dashboard fill:#06B6D4,stroke:#0E7490,color:#ffffff,stroke-width:3px
 
-Backend --> GitHubAnalyzer
+%% ==========================
+%% Nodes
+%% ==========================
 
-Backend --> ResumeBuilder
+A[⚛️ React Frontend]
 
-Backend --> PortfolioBuilder
+B[🚀 Express Backend]
 
-Backend --> AnalyticsEngine
+C[🔐 Authentication]
 
-GitHubAnalyzer --> GitHubAPI
+D[🐙 GitHub Analyzer]
 
-ResumeBuilder --> Gemini
+E[📄 Resume Builder]
 
-PortfolioBuilder --> Gemini
+F[🌐 Portfolio Builder]
 
-AnalyticsEngine --> Database
+G[📊 Analytics Engine]
 
-Gemini --> Dashboard
+H[(🐙 GitHub API)]
 
-Database --> Dashboard
+I[(🤖 Gemini AI)]
+
+J[(💾 db.json)]
+
+K[📈 Developer Dashboard]
+
+%% ==========================
+%% Flow
+%% ==========================
+
+A --> B
+
+B --> C
+B --> D
+B --> E
+B --> F
+B --> G
+
+D --> H
+
+D --> I
+E --> I
+F --> I
+
+C --> J
+D --> J
+E --> J
+F --> J
+G --> J
+
+J --> K
+I --> K
+
+K --> A
+
+%% ==========================
+%% Apply Styles
+%% ==========================
+
+class A frontend
+class B backend
+class C,D,E,F,G service
+class H external
+class I ai
+class J db
+class K dashboard
 ```
-
 ---
 
 # 🔄 Data Flow
 
+## 📊 Developer Workflow
+
 ```mermaid
 flowchart TD
 
-User
+%% ==========================
+%% Styles
+%% ==========================
 
-User --> Login
+classDef user fill:#FF4D6D,stroke:#C9184A,color:#fff,stroke-width:3px
+classDef auth fill:#3B82F6,stroke:#1D4ED8,color:#fff,stroke-width:3px
+classDef dashboard fill:#06B6D4,stroke:#0E7490,color:#fff,stroke-width:3px
+classDef process fill:#10B981,stroke:#047857,color:#fff,stroke-width:3px
+classDef external fill:#24292F,stroke:#57606A,color:#fff,stroke-width:3px
+classDef ai fill:#8B5CF6,stroke:#6D28D9,color:#fff,stroke-width:3px
+classDef db fill:#F59E0B,stroke:#B45309,color:#000,stroke-width:3px
+classDef feature fill:#EC4899,stroke:#BE185D,color:#fff,stroke-width:3px
 
-Login --> Dashboard
+%% ==========================
+%% Nodes
+%% ==========================
 
-Dashboard --> Analyze
+A([👨‍💻 User])
 
-Analyze --> GitHub
+B[🔐 Login]
 
-GitHub --> Backend
+C[📊 Dashboard]
 
-Backend --> AI
+D[🔍 Analyze GitHub Profile]
 
-AI --> Database
+E[(🐙 GitHub API)]
 
-Database --> Dashboard
+F[🚀 Express Backend]
 
-Dashboard --> Resume
+G[🤖 Gemini AI]
 
-Dashboard --> Portfolio
+H[(💾 db.json)]
 
-Dashboard --> Analytics
+I[📄 AI Resume]
+
+J[🌐 Portfolio]
+
+K[📈 Repository Analytics]
+
+%% ==========================
+%% Flow
+%% ==========================
+
+A --> B
+B --> C
+C --> D
+D --> E
+E --> F
+F --> G
+G --> H
+
+H --> C
+
+C --> I
+C --> J
+C --> K
+
+%% ==========================
+%% Colors
+%% ==========================
+
+class A user
+class B auth
+class C dashboard
+class D,F process
+class E external
+class G ai
+class H db
+class I,J,K feature
 ```
-
 ---
 
 ## 📌 Architecture Highlights
