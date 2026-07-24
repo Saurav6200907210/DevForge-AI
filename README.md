@@ -363,27 +363,68 @@ React Frontend-->>Developer: Dashboard
 ```mermaid
 flowchart TD
 
-A[👤 User Login]
+%% ===== Node Styles =====
+classDef start fill:#FF4D6D,stroke:#C9184A,color:#fff,stroke-width:3px
+classDef dashboard fill:#3A86FF,stroke:#1D4ED8,color:#fff,stroke-width:3px
+classDef process fill:#06D6A0,stroke:#0F766E,color:#fff,stroke-width:3px
+classDef ai fill:#8338EC,stroke:#5A189A,color:#fff,stroke-width:3px
+classDef feature fill:#FFBE0B,stroke:#FB5607,color:#000,stroke-width:3px
+classDef success fill:#38B000,stroke:#2D6A4F,color:#fff,stroke-width:3px
 
-A --> B[Dashboard]
+%% ===== Flow =====
 
-B --> C[GitHub Analysis]
+A([👤 User Login])
 
-C --> D[AI Processing]
+B[📊 Dashboard]
 
-D --> E[Repository Insights]
+C[🐙 GitHub Analysis]
 
-D --> F[Resume Builder]
+D[🤖 AI Processing]
 
-D --> G[Portfolio Builder]
+E[📈 Repository Insights]
 
-D --> H[Job Match]
+F[📄 Resume Builder]
 
-H --> I[Career Roadmap]
+G[🌐 Portfolio Builder]
 
-I --> J[Deploy Portfolio]
+H[🎯 Job Match]
 
-J --> K[Success]
+I[🛣️ Career Roadmap]
+
+J[🚀 Portfolio Ready]
+
+K([🎉 Success])
+
+%% ===== Connections =====
+
+A --> B
+
+B --> C
+
+C --> D
+
+D --> E
+
+D --> F
+
+D --> G
+
+D --> H
+
+H --> I
+
+I --> J
+
+J --> K
+
+%% ===== Apply Colors =====
+
+class A start
+class B dashboard
+class C,D ai
+class E,F,G,H feature
+class I,J process
+class K success
 ```
 
 ---
@@ -393,19 +434,69 @@ J --> K[Success]
 ```mermaid
 flowchart LR
 
-GitHubProfile --> RepositoryData
+%% ==========================
+%% Color Styles
+%% ==========================
 
-RepositoryData --> AIEngine
+classDef github fill:#24292F,stroke:#57606A,color:#ffffff,stroke-width:3px
+classDef data fill:#3A86FF,stroke:#1D4ED8,color:#ffffff,stroke-width:3px
+classDef ai fill:#8338EC,stroke:#5A189A,color:#ffffff,stroke-width:3px
+classDef output fill:#FFBE0B,stroke:#FB5607,color:#000000,stroke-width:3px
+classDef dashboard fill:#06D6A0,stroke:#0F766E,color:#ffffff,stroke-width:3px
 
-AIEngine --> Resume
+%% ==========================
+%% Nodes
+%% ==========================
 
-AIEngine --> Portfolio
+A([🐙 GitHub Profile])
 
-AIEngine --> Analytics
+B[📂 Repository Data]
 
-AIEngine --> Suggestions
+C[🤖 AI Analysis Engine]
 
-Suggestions --> Dashboard
+D[📄 ATS Resume]
+
+E[🌐 Portfolio]
+
+F[📊 Repository Analytics]
+
+G[💡 Career Suggestions]
+
+H([📊 Developer Dashboard])
+
+%% ==========================
+%% Flow
+%% ==========================
+
+A --> B
+
+B --> C
+
+C --> D
+
+C --> E
+
+C --> F
+
+C --> G
+
+D --> H
+
+E --> H
+
+F --> H
+
+G --> H
+
+%% ==========================
+%% Apply Styles
+%% ==========================
+
+class A github
+class B data
+class C ai
+class D,E,F,G output
+class H dashboard
 ```
 
 ---
