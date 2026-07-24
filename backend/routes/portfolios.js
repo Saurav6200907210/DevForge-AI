@@ -106,4 +106,24 @@ router.post('/:id/push-repo', async (req, res, next) => {
   }
 });
 
+// Public route to fetch a user's portfolio by username
+router.get('/public/:username', async (req, res, next) => {
+  try {
+    const { username } = req.params;
+    
+    // Find profile by githubUsername
+    const profile = await db.profiles.findByGithub(username);
+    if (!profile) {
+      return res.status(404).json({ error: true, message: 'Portfolio not found' });
+    }
+
+    res.json({
+      success: true,
+      profile: profile
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
