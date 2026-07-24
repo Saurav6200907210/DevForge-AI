@@ -3,7 +3,6 @@ const router = express.Router();
 const axios = require('axios');
 const https = require('https');
 const db = require('../db');
-
 // GitHub & Gemini API endpoints
 const GITHUB_API_URL = 'https://api.github.com';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
