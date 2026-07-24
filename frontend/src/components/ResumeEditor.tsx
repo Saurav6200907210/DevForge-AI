@@ -527,7 +527,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
             <div className="space-y-1.5">
               <h3 className="text-[10px] font-extrabold text-[#1F3A5F] border-b border-slate-200 pb-0.5 uppercase tracking-wider">Core Skills</h3>
               <div className="flex flex-wrap gap-1 pt-1">
-                {skillsString.split(',').map((skill, sIdx) => (
+                {skillsString.split(',').map((skill: string, sIdx: number) => (
                   <span key={sIdx} className="bg-white border border-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[7.5px] font-medium">
                     {skill.trim()}
                   </span>
@@ -890,7 +890,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
   const handleSave = async () => {
     try {
       setSaving(true);
-      const skillsArray = skillsString.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      const skillsArray = skillsString.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0);
       
       const updatedResume = {
         ...resume,
@@ -1399,7 +1399,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
                             type="button"
                             onClick={() => {
                               const updated = [...experiences];
-                              updated[idx].bullets = updated[idx].bullets.filter((_, bi) => bi !== bIdx);
+                              updated[idx].bullets = updated[idx].bullets.filter((_: string, bi: number) => bi !== bIdx);
                               setExperiences(updated);
                             }}
                             className="text-red-500 hover:text-red-600 p-1.5 bg-red-50 border border-red-200 rounded-lg shrink-0"
@@ -1553,7 +1553,7 @@ export default function ResumeEditor({ profile, onUpdateProfile, featuredRepos }
                                 type="button"
                                 onClick={() => {
                                   const updated = [...projects];
-                                  updated[idx].bullets = updated[idx].bullets.filter((_, bi) => bi !== bIdx);
+                                  updated[idx].bullets = updated[idx].bullets.filter((_: any, bi: number) => bi !== bIdx);
                                   setProjects(updated);
                                 }}
                                 className="text-red-500 hover:text-red-600 p-1.5 bg-red-50 border border-red-200 rounded-lg shrink-0"

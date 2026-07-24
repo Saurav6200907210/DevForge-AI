@@ -42,9 +42,10 @@ import { DoughnutDial, BarChart, ContributionGrid } from './CustomChart';
 interface LivePreviewProps {
   profile: any;
   onUpdateProfile: (updatedProfile: any) => void;
+  isPublic?: boolean;
 }
 
-export default function LivePreview({ profile, onUpdateProfile }: LivePreviewProps) {
+export default function LivePreview({ profile, onUpdateProfile, isPublic }: LivePreviewProps) {
   const portfolio = profile.portfolio || {
     theme: 'emerald',
     customColors: { primary: '#1F6F5F', background: '#FAFAF8' },
@@ -1214,6 +1215,7 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
     <div className="space-y-8 max-w-7xl mx-auto w-full text-[#2B2B2B] pb-16 text-left">
       
       {/* Top Banner section */}
+      {!isPublic && (
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[#1F3A5F]/5 pb-5">
         <div>
           <h2 className="text-2xl font-extrabold flex items-center space-x-2.5 text-[#1F3A5F]">
@@ -1277,11 +1279,13 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
           </div>
         </div>
       </div>
+      )}
 
       {/* Main Grid: Left Controls, Right Preview */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className={`grid grid-cols-1 ${isPublic ? 'lg:grid-cols-1' : 'lg:grid-cols-12'} gap-8 items-start`}>
         
         {/* Left Side: Ledger Settings and Logs */}
+        {!isPublic && (
         <div className="lg:col-span-4 space-y-6">
           
           {/* Theme toggles inside builder controls */}
@@ -1416,16 +1420,19 @@ export default function LivePreview({ profile, onUpdateProfile }: LivePreviewPro
           )}
 
         </div>
+        )}
 
         {/* Right Side: Portfolio Preview Frame */}
-        <div className={`lg:col-span-8 bg-white border border-[#1F3A5F]/10 rounded-2xl shadow-lg overflow-hidden transition-all mx-auto ${
+        <div className={`${isPublic ? 'lg:col-span-12' : 'lg:col-span-8'} bg-white border border-[#1F3A5F]/10 rounded-2xl shadow-lg overflow-hidden transition-all mx-auto ${
           previewSize === 'mobile' ? 'max-w-[375px]' : 'w-full'
         }`}>
           {/* Frame Header */}
           <div className="bg-slate-100 border-b border-[#1F3A5F]/10 px-4 py-3 flex items-center justify-between text-xs">
             <div className="flex items-center space-x-1.5 text-[#1F3A5F]">
               <Lock className="h-3.5 w-3.5 text-slate-400" />
-              <span className="font-semibold select-none">{subdomain}.vercel.app</span>
+              <span className="font-semibold select-none">
+                {isPublic ? window.location.host + '/portfolio/' + (profile.githubUsername || '') : `${subdomain}.vercel.app`}
+              </span>
             </div>
             {activeDeployUrl && (
               <a 
