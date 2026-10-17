@@ -8,6 +8,6 @@
     "dev": "node start-all.js"
   },
   "dependencies": {
-    "concurrently": "^10.0.5"
+    "concurrently": "^10.0.6"
   }
 }
